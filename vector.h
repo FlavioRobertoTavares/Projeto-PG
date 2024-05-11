@@ -22,12 +22,12 @@ class Vector{
                 return norm;
             }
 
-            Vector dot(double a, double b, double c){
-                Vector(x*a, y*b, z*x);
+            double dot(double a, double b, double c){
+                return x*a + y*b + z*c;
             }
 
             Vector cross(double a, double b, double c){
-                Vector(y*c - z*b, z*a - x*c, x*b - y*a);
+                return Vector(y*c - z*b, z*a - x*c, x*b - y*a);
             }
 
             void make_unit_vector(){
