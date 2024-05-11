@@ -1,3 +1,6 @@
+#ifndef VECTORH
+#define VECTORH
+
 #include <bits/stdc++.h>
 #include <iostream>
 
@@ -19,20 +22,12 @@ class Vector{
                 return norm;
             }
 
-            void dot(double a, double b, double c){
-                x *= a;
-                y *= b;
-                z *= c;
+            Vector dot(double a, double b, double c){
+                Vector(x*a, y*b, z*x);
             }
 
-            void cross(double a, double b, double c){
-                double x = this->x;
-                double y = this->y;
-                double z = this->z;
-
-                this->x = y*c - z*b;
-                this->y = z*a - x*c;
-                this->z = x*b - y*a;
+            Vector cross(double a, double b, double c){
+                Vector(y*c - z*b, z*a - x*c, x*b - y*a);
             }
 
             void make_unit_vector(){
@@ -72,38 +67,4 @@ Vector operator/(const Vector& v, double n){
     return Vector(v.x / n, v.y / n, v.z / n);
 }
 
-int main (){
-
-    Vector vetor1(1, 2, 3);
-    Vector vetor2(2, 5, 4);
-    Vector null;
-
-//Test vector
-    vetor1.print();
-    vetor2.print();
-
-//Test constructor
-    null.print();
-
-//Test times multiplication
-    vetor1 = vetor1 * 3;
-    vetor1.print();
-
-    vetor1 = vetor1 * vetor2;
-    vetor1.print();
-
-//Test vector plusition
-    vetor1 = vetor1 + vetor2;
-    vetor1.print();
-
-//Test dot product
-    vetor1.dot(3, 2, 1);
-    vetor1.print();
-
-//Test cross product
-    vetor1.cross(1, 2, 3);
-    vetor1.print();
-
-    return 0;
-    
-}
+#endif
