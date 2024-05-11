@@ -19,6 +19,9 @@ class CAM{
             W = target - origin;
             V = W.cross(up.x, up.y, up.z);
             U = V.cross(W.x, W.y, W.z);
+            W.make_unit_vector();
+            V.make_unit_vector();
+            U.make_unit_vector();
 
         }
 
