@@ -26,7 +26,7 @@ int main(){
     Vector sp_color = Vector(200, 50, 0);
     Sphere sphere = Sphere(center, radius, sp_color);
 
-    Point plane_origin = Point(0, 1, 0);
+    Point plane_origin = Point(2, 1, 1.5);
     Vector plane_normal = Vector(0, 1, 0);
     Vector plane_cor = Vector(20, 20, 150);
     Plane plane = Plane(plane_origin, plane_normal, plane_cor);
@@ -40,17 +40,40 @@ int main(){
     for(double y = 0; y < height; y++){
         for(double x = 0; x < length; x++){
             ray raio = ray(cam.origin, sup_esquerdo + (passo_x*x) - (passo_y*y));
-            double intersect = sphere.intersect(raio);
+            double intersect_s = sphere.intersect(raio);
+            double intersect_p = plane.intersect(raio);
+            double intersect;
+            
+            intersect = min(intersect_p, intersect_s);
 
             if(intersect == 0){
                 cout << cam.cor.x << ' ' << cam.cor.y << ' ' << cam.cor.z << '\n';
 
             }else{
-                 cout << sphere.color.x << ' ' << sphere.color.y << ' ' << sphere.color.z << '\n';
+                if (intersect == intersect_p)
+                    cout << plane.color.x << ' ' << plane.color.y << ' ' << plane.color.z << '\n';
+                else {
+                    cout << sphere.color.x << ' ' << sphere.color.y << ' ' << sphere.color.z << '\n';
+                }
             
             }
         }
     }
+
+    // for(double y = 0; y < height; y++){
+    //     for(double x = 0; x < length; x++){
+    //         ray raio = ray(cam.origin, sup_esquerdo + (passo_x*x) - (passo_y*y));
+    //         double intersect = plane.intersect(raio);
+
+    //         if(intersect == 0){
+    //             cout << cam.cor.x << ' ' << cam.cor.y << ' ' << cam.cor.z << '\n';
+
+    //         }else{
+    //              cout << plane.color.x << ' ' << plane.color.y << ' ' << plane.color.z << '\n';
+            
+    //         }
+    //     }
+    // }
 
     return 0;
 }

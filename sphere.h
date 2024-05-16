@@ -17,9 +17,10 @@ class Sphere {
 
         double intersect(const ray &r){
             double distance;
+            double dist;
             Vector oc = center - r.origin();
             double A = r.direction().dot(r.direction().x, r.direction().y, r.direction().z);
-            double B = 2*r.direction().dot(oc.x, oc.y, oc.z);
+            double B = -2*r.direction().dot(oc.x, oc.y, oc.z);
             double C = oc.dot(oc.x, oc.y, oc.z) - pow(radius, 2);
 
             double Delta = pow(B, 2) - 4*A*C;
@@ -37,10 +38,10 @@ class Sphere {
                     distance = distance1;
                 }
                 
-            }else if (Delta < 0){
-                distance = 0;
-                
+            }else{
+                distance = 0; 
             }
+
             return distance;
 
         }
