@@ -32,9 +32,15 @@ class Vector{
 
             void make_unit_vector(){
                 double norma = norm();
-                x = x/norma;
-                y = y/norma;
-                z = z/norma;
+                if(norma == 0){
+                    x = 0;
+                    y = 0;
+                    z = 0;
+                }else{
+                    x = x/norma;
+                    y = y/norma;
+                    z = z/norma;
+                }
             }
 
             void print(){
@@ -43,6 +49,7 @@ class Vector{
 };
 
 //overload das operações com vetor
+
 Vector operator+(const Vector& v1, const Vector& v2){
     return Vector(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z);
 }
