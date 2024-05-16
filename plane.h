@@ -4,6 +4,7 @@
 #include "vector.h"
 #include "point.h"
 #include "ray.h"
+using namespace std;
 
 class Plane {
 public:
@@ -24,11 +25,17 @@ public:
 
     double intersect(const ray &r){
         
-        if(r.direction().dot(a, b, c) != 0){
-            double distance = ((normal.dot(point.x, point.y, point.z) + normal.dot(r.origin().x, r.origin().y, r.origin().z))) / normal.dot(r.direction().x, r.direction().y, r.direction().z);
+         //Agora só retorna se não for menor que 0
+
+        if(normal.dot(r.direction().x, r.direction().y, r.direction().z) != 0){
+            double distance = (normal.dot(point.x, point.y, point.z) - normal.dot(r.origin().x, r.origin().y, r.origin().z)) / normal.dot(r.direction().x, r.direction().y, r.direction().z);
+            if(distance < 0){
+                return 0;
+            }
             return distance;
 
         }
+        return 0;
 
     }
 

@@ -25,18 +25,22 @@ class Sphere {
 
             double Delta = pow(B, 2) - 4*A*C;
 
-            if(Delta == 0){
-                distance = (-B+sqrt(Delta)) /  2*A;
-
-            }else if(Delta > 0){
+            if(Delta >= 0){
                 double distance1 = (-B+sqrt(Delta)) /  2*A;
                 double distance2 = (-B-sqrt(Delta)) /  2*A;
+                
+                //retorna a menor e se ela não for menor que 0
 
-                if(distance1 > distance2){
+                if(distance1 < 0){
                     distance = distance2;
-                }else{
+                
+                }else if(distance2 < 0){
                     distance = distance1;
+
+                }else{
+                    distance = min(distance1, distance2);
                 }
+                
                 
             }else{
                 distance = 0; 
