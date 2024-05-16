@@ -17,9 +17,11 @@ class Sphere {
 
         double intersect(const ray &r){
             double distance;
-            double A = pow(r.direction().x, 2) + pow(r.direction().y, 2) + pow(r.direction().z, 2);
-            double B = 2* ( (r.origin().x - center.x) + (r.origin().y - center.y) + (r.origin().z - center.z) );
-            double C = pow((r.origin().x - center.x), 2) + pow((r.origin().y - center.y), 2) + pow((r.origin().z - center.z), 2) - pow(radius, 2);
+            Vector oc = center - r.origin();
+            double A = r.direction().dot(r.direction().x, r.direction().y, r.direction().z);
+            double B = 2*r.direction().dot(oc.x, oc.y, oc.z);
+            double C = oc.dot(oc.x, oc.y, oc.z) - pow(radius, 2);
+
             double Delta = pow(B, 2) - 4*A*C;
 
             if(Delta == 0){
@@ -39,7 +41,6 @@ class Sphere {
                 distance = 0;
                 
             }
-
             return distance;
 
         }
@@ -48,16 +49,5 @@ class Sphere {
         double radius;
         Vector color;
 };
-
-int main(){
-    Sphere esfera(Point(1, 1, 1), 3, Vector(0, 0, 0));
-    ray raio(Point(2, 2, 2), Vector(1, -3, 2));
-
-    double dist = esfera.intersect(raio);
-    cout << dist;
-
-}
-
-
 
 #endif

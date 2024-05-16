@@ -31,17 +31,15 @@ int main(){
     Vector plane_cor = Vector(20, 20, 150);
     Plane plane = Plane(plane_origin, plane_normal, plane_cor);
 
-    Vector sup_esquerdo = cam.W*(-cam.distance) + cam.V - cam.U ;
-    Vector passo_x = cam.U*(2/(height));    
-    Vector passo_y = cam.V*(2/(length));    
-
-    sup_esquerdo.print();
+    Vector sup_esquerdo = cam.W*(cam.distance) + cam.V - cam.U ;
+    Vector passo_x = cam.U*(2/(height-1));    
+    Vector passo_y = cam.V*(2/(length-1));    
 
     cout << "P3\n" << length << " " << height << "\n255\n";
 
     for(double y = 0; y < height; y++){
         for(double x = 0; x < length; x++){
-            ray raio = ray(cam.origin, sup_esquerdo + passo_x*x + passo_y*y);
+            ray raio = ray(cam.origin, sup_esquerdo + (passo_x*x) - (passo_y*y));
             double intersect = sphere.intersect(raio);
 
             if(intersect == 0){
@@ -53,7 +51,6 @@ int main(){
             }
         }
     }
-
 
     return 0;
 }
