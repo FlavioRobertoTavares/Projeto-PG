@@ -17,7 +17,6 @@ class Sphere {
 
         double intersect(const ray &r){
             double distance;
-            double dist;
             Vector oc = center - r.origin();
             double A = r.direction().dot(r.direction().x, r.direction().y, r.direction().z);
             double B = -2*r.direction().dot(oc.x, oc.y, oc.z);
