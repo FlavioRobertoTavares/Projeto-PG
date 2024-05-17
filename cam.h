@@ -16,9 +16,9 @@ class CAM{
             this->distance = distance;
             this->height = height;
             this->length = length;
-            W = target - origin;
-            U = W.cross(up.x, up.y, up.z);
-            V = U.cross(W.x, W.y, W.z);
+            W = target - origin; //z
+            U = W % up; //y
+            V = U % W; // x
             W.make_unit_vector();
             U.make_unit_vector();
             V.make_unit_vector();

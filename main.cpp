@@ -11,29 +11,75 @@ using namespace std;
 
 int main(){
     //Coisas acontecerão aqui
- 
-    Point origin = Point(0, 0, 0);
-    Point target = Point(1, 0, 0);
-    Vector up = Vector(0, 1, 0);
-    Vector cor = Vector(0, 0, 0);
-    double height = 500;
-    double length = 500;
+    double x, y, z;
+
+    //cout << "CAMERA: \n";
+
+    //cout << "ORIGEM: ";
+    cin >> x >> y >> z;
+    Point origin = Point(x, y, z);
+
+    //cout << "TARGET: ";
+    cin >> x >> y >> z;
+    Point target = Point(x, y, z);
+
+    //cout << "UP: ";
+    cin >> x >> y >> z;
+    Vector up = Vector(x, y, z);
+    
+    //cout << "COR: ";
+    cin >> x >> y >> z;
+    Vector cor = Vector(x, y, z);
+
+    double height;
+    double foo;
+    //cout << "ALTURA: ";
+    cin >> foo;
+    height = foo;
+
+    double length;
+    //cout << "COMPRIMENTO: ";
+    cin >> foo;
+    length = foo;
+
     double distance = 1;
+
+
     CAM cam = CAM(origin, target, up, cor, height, length, distance);
 
-    Point center = Point(3.5, 0, -0.7);
-    double radius = 1.5;
-    Vector sp_color = Vector(200, 50, 0);
+//SPHERE 1:
+    //CENTER:
+    cin >> x >> y >> z;
+    Point center = Point(x, y, z);
+    
+    cin >> x;
+    double radius = x;
+
+    cin >> x >> y >> z;
+    Vector sp_color = Vector(x, y ,z);
     Sphere sphere = Sphere(center, radius, sp_color);
 
-    Point center2 = Point(7, 0, 1);
-    double radius2 = 3;
-    Vector sp_color2 = Vector(200, 250, 0);
+
+    //SPHERE 2:
+    cin >> x >> y >> z;
+    Point center2 = Point(x, y, z);
+
+    cin >> x;
+    double radius2 = x;
+
+    cin >> x >> y >> z;
+    Vector sp_color2 = Vector(x, y, z);
+
     Sphere sphere2 = Sphere(center2, radius2, sp_color2);
 
-    Point plane_origin = Point(0, 1, 0);
-    Vector plane_normal = Vector(0, 1, 0);
-    Vector plane_cor = Vector(20, 20, 150);
+    cin >> x >> y >> z;
+    Point plane_origin = Point(x, y, z);
+
+    cin >> x >> y >> z;
+    Vector plane_normal = Vector(x, y, z);
+    cin >> x >> y >> z;
+    Vector plane_cor = Vector(x, y, z);
+    
     Plane plane = Plane(plane_origin, plane_normal, plane_cor);
 
     Vector sup_esquerdo = cam.W*(cam.distance) + cam.V - cam.U ;

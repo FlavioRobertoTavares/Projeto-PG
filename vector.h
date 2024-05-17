@@ -26,10 +26,10 @@ class Vector{
                 return x*a + y*b + z*c;
             }
 
-            Vector cross(double a, double b, double c){
+/*            Vector cross(double a, double b, double c){
                 return Vector(y*c - z*b, z*a - x*c, x*b - y*a);
             }
-
+*/
             void make_unit_vector(){
                 double norma = norm();
                 if(norma == 0){
@@ -72,6 +72,10 @@ Vector operator/(const Vector& v1, const Vector& v2){
 
 Vector operator/(const Vector& v, double n){
     return Vector(v.x / n, v.y / n, v.z / n);
+}
+
+Vector operator%(const Vector& v1, const Vector& v2){
+    return Vector(v1.y*v2.z - v1.z*v2.y, v1.z*v2.x - v1.x*v2.z, v1.x*v2.y - v1.y*v2.x);
 }
 
 #endif
