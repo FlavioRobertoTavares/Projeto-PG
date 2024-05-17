@@ -3,49 +3,93 @@ import json
 import os
 import subprocess
 
+# Dados para páginas
+page_name = {0: "Iniciar câmera\n(sempre comece por aqui)", 1 : "Gerar uma esfera", 2 : "Gerar um plano"}
+object_name = {1 : "sphere", 2 : "plane"}
+data_pages = [
+    ["origin", "target", "up", "cor", "height", "length", "distance"],
+    ["center", "radius", "sp_color"],
+    ["plane_origin", "plane_normal", "plane_cor"]
+]
+
 def compile_and_run():
-    # Compile main.cpp into an executable named "render"
-    compile_process = subprocess.run(["g++", "main.cpp", "-o", "render"], capture_output=True, text=True)
 
-    run_process = subprocess.run(["./render"], stdin=open("input.txt", "r"), stdout=open("output.ppm", "w"))
+    if os.path.exists("input.txt"):
+        with open("input.txt", "r") as file:
+            existing_lines = file.readlines()
+    else:
+        existing_lines = []
 
-# Function to write data to files
-def write_to_file():
-    data = {
-        "origin": origin_entry.get(),
-        "target": target_entry.get(),
-        "up": up_entry.get(),
-        "cor": cor_entry.get(),
-        "height": height_entry.get(),
-        "double length": double_length_entry.get(),
-        "center": center_entry.get(),
-        "radius": radius_entry.get(),
-        "sp_color": sp_color_entry.get(),
-        "center2": center2_entry.get(),
-        "radius2": radius2_entry.get(),
-        "sp_color2": sp_color2_entry.get(),
-        "plane_origin": plane_origin_entry.get(),
-        "plane_normal": plane_normal_entry.get(),
-        "plane_cor": plane_cor_entry.get()  # Add plane_cor entry
-    }
-    
-    # Write to JSON file for persistence
-    with open("data.json", "w") as file:
-        json.dump(data, file)
-    
-    # Write to output.txt for immediate viewing (data only)
     with open("input.txt", "w") as file:
-        for value in data.values():
-            file.write(f"{value}\n")
+        file.writelines(existing_lines)
+        file.write("generate\n")
+
+    # Compilar main.cpp em um executável chamado "render"
+    compile_process = subprocess.run(["g++", "main.cpp", "-o", "render"], capture_output=True, text=True)
+    run_process = subprocess.run(["./render.exe"], stdin=open("input.txt", "r"), stdout=open("output.ppm", "w"))
     
+    #fecha e limpa o input
+    on_closing()
+    
+
+def clear_input_file():
+    with open("input.txt", "w") as file:
+        file.write("")
+
+def write_on_input(append=False):
+    global object_name
+
+    current_data = {}
+    for entry in entries[current_page]:
+        current_data[entry["label"].cget("text")] = entry["entry"].get()
+
+    # Append to input.txt
+    if os.path.exists("input.txt") and append:
+        with open("input.txt", "r") as file:
+            existing_lines = file.readlines()
+    else:
+        existing_lines = []
+
+    with open("input.txt", "w") as file:
+        file.writelines(existing_lines)
+
+        if current_page != 0:
+            file.write(f"{object_name[current_page]}\n")
+
+        for value in current_data.values():
+            file.write(f"{value}\n")
+
+def save_current_json(append=False):
+    current_data = {}
+    for entry in entries[current_page]:
+        current_data[entry["label"].cget("text")] = entry["entry"].get()
+
+    # Append to data.json
+    if os.path.exists("data.json") and append:
+        with open("data.json", "r") as file:
+            existing_data = json.load(file)
+        existing_data.update(current_data)
+        data_to_save = existing_data
+    else:
+        data_to_save = current_data
+
+    with open("data.json", "w") as file:
+        json.dump(data_to_save, file)
+
+
+def write_to_file():
+    for i in range(len(data_pages)):
+        show_page(i)
+        save_current_json(append=True)
     compile_and_run()
 
-# Function to save data when closing the window
 def on_closing():
-    #write_to_file()
+    for i in range(len(data_pages)):
+        show_page(i)
+        save_current_json(append=True)
+    clear_input_file()
     root.destroy()
 
-# Function to load data from file
 def load_data():
     if os.path.exists("data.json"):
         with open("data.json", "r") as file:
@@ -53,78 +97,79 @@ def load_data():
             return data
     return {}
 
-# Create the main window
-root = tk.Tk()
-root.title("Data Writer")
-
-# Define the labels and their respective columns
-camera_labels = ["origin", "target", "up", "cor", "height", "double length"]
-sphere_labels = ["center", "radius", "sp_color"]
-sphere2_labels = ["center2", "radius2", "sp_color2"]
-plane_labels = ["plane_origin", "plane_normal", "plane_cor"]  # Add plane_cor label
-
-# Function to create labeled entries in a specific column
-def create_labeled_entries(labels, start_row, col, data):
-    entries = {}
-    for i, label in enumerate(labels):
+def create_entries(labels, data):
+    entries = []
+    for label in labels:
         lbl = tk.Label(root, text=label)
-        lbl.grid(row=start_row + i, column=col, padx=5, pady=5, sticky='w')
-        
         entry = tk.Entry(root)
-        entry.grid(row=start_row + i, column=col + 1, padx=5, pady=5, sticky='we')
-        entry.insert(0, data.get(label, ""))
-        
-        entries[label] = entry
+        #entry.insert(0, data.get(label, ""))
+        entries.append({"label": lbl, "entry": entry})
     return entries
 
-# Load existing data
+def show_menu():
+    global page_name
+
+    # Limpar widgets da página anterior
+    for widget in root.winfo_children():
+        widget.grid_forget()
+
+    menu_label = tk.Label(root, text="Menu", font=('Helvetica', 16, 'bold'))
+    menu_label.grid(row=0, column=0, pady=10, columnspan=2)
+
+    # Botões do menu
+    for i, page in enumerate(data_pages):
+        button = tk.Button(root, text=f"{page_name[i]}", command=lambda i=i: show_page(i))
+        button.grid(row=i+1, column=0, padx=5, pady=5)
+
+    save_button.grid(row=len(data_pages) + 1, column=0, pady=20)
+
+def show_page(page_index):
+    global current_page
+    current_page = page_index
+
+    # Limpar widgets da página anterior
+    for widget in root.winfo_children():
+        widget.grid_forget()
+
+    page_entries = entries[page_index]
+    for i, entry in enumerate(page_entries):
+        entry["label"].grid(row=i, column=0, padx=5, pady=5, sticky='w')
+        entry["entry"].grid(row=i, column=1, padx=5, pady=5, sticky='we')
+
+    back_to_menu_button.grid(row=len(page_entries) + 1, column=1, pady=10)
+    back_to_menu_button_no_save.grid(row=len(page_entries) + 1, column=0, pady=10)
+
+def back_to_menu():
+    write_on_input(append=True)
+    show_menu()
+
+def back_to_menu_no_save():
+    show_menu()
+
+# Inicialização
+root = tk.Tk()
+root.title("Data Writer")
+current_page = 0
+
+# Carregar dados
 data = load_data()
 
-# Create category labels
-tk.Label(root, text="Camera", font=('Helvetica', 12, 'bold')).grid(row=0, column=0, columnspan=2, pady=10)
-tk.Label(root, text="Sphere 1", font=('Helvetica', 12, 'bold')).grid(row=0, column=2, columnspan=2, pady=10)
-tk.Label(root, text="Sphere 2", font=('Helvetica', 12, 'bold')).grid(row=5, column=2, columnspan=2, pady=10)
-tk.Label(root, text="Plane", font=('Helvetica', 12, 'bold')).grid(row=0, column=4, columnspan=2, pady=10)
+# Criar entradas
+entries = []
+for page in data_pages:
+    page_entries = create_entries(page, data)
+    entries.append(page_entries)
 
-# Create labeled entries for each column
-camera_entries = create_labeled_entries(camera_labels, 1, 0, data)
-sphere_entries = create_labeled_entries(sphere_labels, 1, 2, data)
-sphere2_entries = create_labeled_entries(sphere2_labels, 6, 2, data)
-plane_entries = create_labeled_entries(plane_labels, 1, 4, data)
+# Botões
+save_button = tk.Button(root, text="Salvar no Arquivo", command=write_to_file)
+back_to_menu_button = tk.Button(root, text="Salvar", command=back_to_menu)
+back_to_menu_button_no_save = tk.Button(root, text="Cancelar", command=back_to_menu_no_save)
 
-# Assign entries to specific variables for clarity
-origin_entry = camera_entries["origin"]
-target_entry = camera_entries["target"]
-up_entry = camera_entries["up"]
-cor_entry = camera_entries["cor"]
-height_entry = camera_entries["height"]
-double_length_entry = camera_entries["double length"]
-center_entry = sphere_entries["center"]
-radius_entry = sphere_entries["radius"]
-sp_color_entry = sphere_entries["sp_color"]
-center2_entry = sphere2_entries["center2"]
-radius2_entry = sphere2_entries["radius2"]
-sp_color2_entry = sphere2_entries["sp_color2"]
-plane_origin_entry = plane_entries["plane_origin"]
-plane_normal_entry = plane_entries["plane_normal"]
-plane_cor_entry = plane_entries["plane_cor"]  # Add plane_cor entry
+# Mostrar o menu inicial
+show_menu()
 
-# Create a save button
-save_button = tk.Button(root, text="Save to File", command=write_to_file)
-save_button.grid(row=10, columnspan=6, pady=20)
-
-# Configure column weights
-root.columnconfigure(1, weight=1)
-root.columnconfigure(3, weight=1)
-root.columnconfigure(5, weight=1)
-
-# Bind the closing event to save data
+# Eventos
 root.protocol("WM_DELETE_WINDOW", on_closing)
 
-# Start the main event loop
+# Loop principal
 root.mainloop()
-
-
-
-
-
