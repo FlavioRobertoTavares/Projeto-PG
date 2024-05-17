@@ -41,7 +41,7 @@ void Render(const CAM &cam, const vector<Sphere> &Spheres, vector<Plane> &Planes
     sort(distances.begin(), distances.end(), return_min_dist);
     dist = distances[0].first;
     RGB = distances[0].second;
-    if( (dist == 0) || (dis > cam.distance) ){RGB = cam.cor;}
+    if( (dist == 0) || (dist < cam.distance) ){RGB = cam.cor;}
     
     cout << RGB.x << ' ' << RGB.y << ' ' << RGB.z << '\n';
 }
