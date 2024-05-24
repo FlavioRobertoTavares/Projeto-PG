@@ -13,9 +13,9 @@ class ray {
     Point origin() const { return orig; }
     Vector direction() const { return dir; }
 
- //Point at(double t) const {
-   //     return orig + t*dir;
-    //}
+ Point at(double t) const {
+        return orig + dir*t;
+    }
 
   private:
  Point orig;
