@@ -4,14 +4,14 @@ import os
 import subprocess
 
 # Dados para páginas
-page_name = {0: "Iniciar câmera\n(sempre comece por aqui)", 1 : "Gerar uma esfera", 2 : "Gerar um plano"}
-object_name = {1 : "sphere", 2 : "plane"}
+page_name = {0: "Iniciar câmera\n(sempre comece por aqui)", 1 : "Gerar uma esfera", 2 : "Gerar um plano", 3 : "Gerar uma malha de triângulos"}
+object_name = {1 : "sphere", 2 : "plane", 3: "mesh"}
 data_pages = [
     ["origin", "target", "up", "cor", "height", "length", "distance"],
     ["center", "radius", "sp_color"],
-    ["plane_origin", "plane_normal", "plane_cor"]
+    ["plane_origin", "plane_normal", "plane_cor"],
+    ["total_triangles", "total_vertex", "list_vertex", "list_index", "mesh_color"]
 ]
-
 def compile_and_run():
 
     if os.path.exists("input.txt"):

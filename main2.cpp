@@ -21,7 +21,7 @@ bool return_min_dist(const pair<double, Vector> &dist1, const pair<double, Vecto
 
 //Vai passar por todas as esferas e planos da lista Spheres e Planes, para então ver qual tem a menor dist entre eles
 //E então printa a cor na tela
-void Render(const CAM &cam, const vector<Sphere> &Spheres, vector<Plane> &Planes, const ray &raio){
+void Render(const CAM &cam, const vector<Sphere> &Spheres, vector<Plane> &Planes, vector<Mesh> &Meshs ,const ray &raio){
     vector<pair<double, Vector>> distances;
     double dist;
     Vector RGB;
@@ -38,6 +38,11 @@ void Render(const CAM &cam, const vector<Sphere> &Spheres, vector<Plane> &Planes
         distances.push_back(make_pair(dist, RGB));
     }
 
+    for(Mesh mesh : Meshs){
+        dist = mesh.intersect(raio);
+        RGB = mesh.color;
+        distances.push_back(make_pair(dist, RGB));
+    }
     //Aqui ele organiza para pegar a menor dist, a de indice 0, se tal dist for == 0, ele coloca a cor da câmera
     sort(distances.begin(), distances.end(), return_min_dist);
     dist = distances[0].first;
@@ -52,13 +57,12 @@ int main(){
     double x, y, z, foo, height, length, distance;
     vector<Sphere> Spheres;
     vector<Plane> Planes;
-    vector<Mesh> Triangle_mesh;
+    vector<Mesh> Meshs;
 
 
     int nTriangles;
     int nVertex;
     vector<Point> Vertices;
-    vector<vector<int>> triplas;
     Vector color;
 
     cin >> x >> y >> z;
@@ -118,33 +122,27 @@ int main(){
             Planes.push_back(plane);
         }
         else if(input == "mesh"){
-            cin >> nTriangles >> nVertex;
+            cin >> nTriangles;
+            cin >> nVertex;
+            vector<vector<int>> triplas (nTriangles);
 
-            for(int i = 0; i < nTriangles; i++){
+            for(int i = 0; i < nVertex; i++){
                 cin >> x >> y >> z;
                 Point A = Point(x, y, z);
-                cin >> x >> y >> z;
-                Point B = Point(x, y, z);
-                cin >> x >> y >> z;
-                Point C = Point(x, y, z);
                 Vertices.push_back(A);
-                Vertices.push_back(B);
-                Vertices.push_back(C);
             }
-
-            for(int i=0; i<nVertex; i++){
+            for(int i=0; i<nTriangles; i++){
                 cin >> x >> y >> z;
                 triplas[i].push_back(x);
                 triplas[i].push_back(y);
                 triplas[i].push_back(z);
             }
-
             cin >> x >> y >> z;
             Vector mesh_color = Vector(x, y, z);
 
             Mesh mesh = Mesh(nTriangles, nVertex, Vertices, triplas, mesh_color);
 
-            Triangle_mesh.push_back(mesh);
+            Meshs.push_back(mesh);
 
         }
     }
@@ -155,7 +153,7 @@ int main(){
         for(double x = 0; x < length; x++){
             ray raio = ray(cam.origin, sup_esquerdo + (passo_x*x) - (passo_y*y));
             //Aqui ele manda o raio pra renderizar a cor certa na tela
-            Render(cam, Spheres, Planes, raio);
+            Render(cam, Spheres, Planes, Meshs, raio);
         }
     }
 

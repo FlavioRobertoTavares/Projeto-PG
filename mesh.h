@@ -47,7 +47,7 @@ class Triangle{
             double beta = Area(P, A, C) / Area(A, B, C);
             double gama = Area(P, A, B) / Area(A, B, C);
 
-            cout << "Alfa: " << alpha << " Beta: " << beta << " Gama: " << gama << endl;
+            //cout << "Alfa: " << alpha << " Beta: " << beta << " Gama: " << gama << endl;
            //cout << "Alfa + Beta + Gama: " << alpha + beta + gama << endl;
             //bool verificar = (alpha + beta + gama) <= 1;
             //cout << "(Alfa + Beta + Gama) <= 1: " << verificar << endl;
@@ -87,18 +87,18 @@ class Mesh{
                 Triangle tri = Triangle(A, B, C);
                 Triangles.push_back(tri);
             }
-
         }
 
 
 
         double intersect(const ray& r){
-            double dist = 0;
+            double dist;
             double menor_dist = INT_FAST16_MAX;
             for(Triangle tri : Triangles){
                 dist = tri.intersect(r);
                 if(dist < menor_dist && dist > 0){menor_dist = dist;}
             }
+            if(menor_dist == INT_FAST16_MAX){return 0;}
             return menor_dist;
         }
 
