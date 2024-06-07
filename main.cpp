@@ -10,6 +10,7 @@
 #include "sphere.h"
 #include "plane.h"
 #include "mesh.h"
+#include "matrix.h"
 using namespace std;
 
 //Organiza a lista do menor pro maior, mas se for 0, ele coloca no final da lista
@@ -21,14 +22,16 @@ bool return_min_dist(const pair<double, Vector> &dist1, const pair<double, Vecto
 
 //Vai passar por todas as esferas e planos da lista Spheres e Planes, para então ver qual tem a menor dist entre eles
 //E então printa a cor na tela
-void Render(const CAM &cam, const vector<Sphere> &Spheres, vector<Plane> &Planes, vector<Mesh> &Meshs ,const ray &raio){
+void Render(const CAM &cam, const vector<pair<Sphere, vector<Matrix>>> &Spheres, vector<Plane> &Planes, vector<Mesh> &Meshs ,const ray &raio){
     vector<pair<double, Vector>> distances;
     double dist;
     Vector RGB;
 
-    for(Sphere sphere : Spheres){
-        dist = sphere.intersect(raio);
-        RGB = sphere.color;
+    for (auto sphere : Spheres) {
+        ray raio2 = raio;
+        for(auto transf : sphere.second){raio2 = transf.transform_ray(raio2);}
+        dist = sphere.first.intersect(raio2);
+        RGB = sphere.first.color;
         distances.push_back(make_pair(dist, RGB));
     }
 
@@ -55,7 +58,7 @@ void Render(const CAM &cam, const vector<Sphere> &Spheres, vector<Plane> &Planes
 int main(){
     //Coisas acontecerão aqui
     double x, y, z, foo, height, length, distance;
-    vector<Sphere> Spheres;
+    vector<pair<Sphere, vector<Matrix>>> Spheres;
     vector<Plane> Planes;
     vector<Mesh> Meshs;
 
@@ -93,7 +96,8 @@ int main(){
     for(string input = ""; input != "generate"; cin >> input){
 
         if(input == "sphere"){
-        
+            vector<Matrix> k;
+
             cin >> x >> y >> z;
             Point center = Point(x, y, z);
             
@@ -104,7 +108,7 @@ int main(){
             Vector sp_color = Vector(x, y ,z);
             
             Sphere sphere = Sphere(center, radius, sp_color);
-            Spheres.push_back(sphere);
+            Spheres.push_back(make_pair(sphere, k));
         
         }else if(input == "plane"){
 
@@ -145,7 +149,30 @@ int main(){
 
             Meshs.push_back(mesh);
 
+        }else if(input == "transf"){
+            string object;
+            int index;
+
+            //sphere 2 (a segunda esfera)
+            cin >> object >> index;
+
+            Matrix matrix = Matrix();
+            for(int i = 0; i < 4; i++){
+                for(int j = 0; j < 4; j++){
+                    cin >> matrix.elements[i][j];
+                }
+            }
+
+            matrix.create_inverse();
+
+            if(object == "sphere"){
+                Spheres[index].second.push_back(matrix);
+            }
+
+
         }
+
+
     }
 
     cout << "P3\n" << length << " " << height << "\n255\n";
