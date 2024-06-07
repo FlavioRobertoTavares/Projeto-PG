@@ -77,6 +77,7 @@ class Mesh{
 
             this->nTriangles = nTriangles;
             this->nVertex = nVertex;
+            this->triplas = triplas;
             this->Vertices = Vertices;
             this->color = color;
 
