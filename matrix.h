@@ -135,8 +135,6 @@ class Matrix{
 
             det = elements[0][0] * inv[0][0] + elements[0][1] * inv[1][0] + elements[0][2] * inv[2][0] + elements[0][3] * inv[3][0];
 
-           cout <<"Det: "<<det;
-
             if (det == 0){
                 isInvertible = false;
 
@@ -156,7 +154,6 @@ class Matrix{
 
         ray transform_ray(const ray &r){
             double x, y, z;
-            r.origin().print();
             x = r.origin().x*elements_inverse[0][0] + r.origin().y*elements_inverse[0][1] + r.origin().z*elements_inverse[0][2] + elements_inverse[0][3];
             y = r.origin().x*elements_inverse[1][0] + r.origin().y*elements_inverse[1][1] + r.origin().z*elements_inverse[1][2] + elements_inverse[1][3];
             z = r.origin().x*elements_inverse[2][0] + r.origin().y*elements_inverse[2][1] + r.origin().z*elements_inverse[2][2] + elements_inverse[2][3];
