@@ -22,16 +22,14 @@ bool return_min_dist(const pair<double, Vector> &dist1, const pair<double, Vecto
 
 //Vai passar por todas as esferas e planos da lista Spheres e Planes, para então ver qual tem a menor dist entre eles
 //E então printa a cor na tela
-void Render(const CAM &cam, const vector<pair<Sphere, vector<Matrix>>> &Spheres, vector<Plane> &Planes, vector<Mesh> &Meshs ,const ray &raio){
+void Render(const CAM &cam, const vector<Sphere> &Spheres, vector<Plane> &Planes, vector<Mesh> &Meshs ,const ray &raio){
     vector<pair<double, Vector>> distances;
     double dist;
     Vector RGB;
 
-    for (auto sphere : Spheres) {
-        ray raio2 = raio;
-        for(auto transf : sphere.second){raio2 = transf.transform_ray(raio2);}
-        dist = sphere.first.intersect(raio2);
-        RGB = sphere.first.color;
+    for(Sphere sphere : Spheres){
+        dist = sphere.intersect(raio);
+        RGB = sphere.color;
         distances.push_back(make_pair(dist, RGB));
     }
 
@@ -58,7 +56,7 @@ void Render(const CAM &cam, const vector<pair<Sphere, vector<Matrix>>> &Spheres,
 int main(){
     //Coisas acontecerão aqui
     double x, y, z, foo, height, length, distance;
-    vector<pair<Sphere, vector<Matrix>>> Spheres;
+    vector<Sphere> Spheres;
     vector<Plane> Planes;
     vector<Mesh> Meshs;
 
@@ -96,8 +94,7 @@ int main(){
     for(string input = ""; input != "generate"; cin >> input){
 
         if(input == "sphere"){
-            vector<Matrix> k;
-
+        
             cin >> x >> y >> z;
             Point center = Point(x, y, z);
             
@@ -108,7 +105,7 @@ int main(){
             Vector sp_color = Vector(x, y ,z);
             
             Sphere sphere = Sphere(center, radius, sp_color);
-            Spheres.push_back(make_pair(sphere, k));
+            Spheres.push_back(sphere);
         
         }else if(input == "plane"){
 
@@ -153,7 +150,7 @@ int main(){
             string object;
             int index;
 
-            //sphere 2 (a segunda esfera)
+            //ex: sphere 2 (a terceira esfera)
             cin >> object >> index;
 
             Matrix matrix = Matrix();
@@ -163,16 +160,26 @@ int main(){
                 }
             }
 
-            matrix.create_inverse();
-
             if(object == "sphere"){
-                Spheres[index].second.push_back(matrix);
+                Point center = matrix.transform_point(Spheres[index].center);
+                Spheres[index] = Sphere(center, Spheres[index].radius, Spheres[index].color);
+            
+            }else if(object == "plane"){
+                Point origin = matrix.transform_point(Planes[index].point);
+                Vector normal = matrix.transform_vector(Planes[index].normal);
+                Planes[index] = Plane(origin, normal, Planes[index].color);
+
+            }else if(object == "mesh"){
+                vector<Point> newVertices;
+                for(Point vertice : Meshs[index].Vertices){
+                    Point newVertice = matrix.transform_point(vertice);
+                    newVertices.push_back(newVertice);
+                }
+                Meshs[index] = Mesh(Meshs[index].nTriangles, Meshs[index].nVertex, newVertices, Meshs[index].triplas, Meshs[index].color);
+                newVertices.clear();
+                
             }
-
-
         }
-
-
     }
 
     cout << "P3\n" << length << " " << height << "\n255\n";

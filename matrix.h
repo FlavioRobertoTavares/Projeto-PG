@@ -167,6 +167,25 @@ class Matrix{
             return ray(origin, direction);
         }
 
+        Point transform_point(const Point &k){
+            double x, y, z;
+            x = k.x*elements[0][0] + k.y*elements[0][1] + k.z*elements[0][2] + elements[0][3];
+            y = k.x*elements[1][0] + k.y*elements[1][1] + k.z*elements[1][2] + elements[1][3];
+            z = k.x*elements[2][0] + k.y*elements[2][1] + k.z*elements[2][2] + elements[2][3];
+            Point p =  Point(x, y, z);
+            return p;
+        }
+
+        Vector transform_vector(const Vector &k){
+            double x, y, z;
+            x = k.x*elements[0][0] + k.y*elements[0][1] + k.z*elements[0][2];
+            y = k.x*elements[1][0] + k.y*elements[1][1] + k.z*elements[1][2];
+            z = k.x*elements[2][0] + k.y*elements[2][1] + k.z*elements[2][2];
+            Vector v =  Vector(x, y, z);
+            return v;
+        }
+
+
 };
 
 

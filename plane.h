@@ -16,6 +16,9 @@ public:
     Plane(double a, double b, double c, double d) : a(a), b(b), c(c), d(d) {}
 
     Plane(const Point& point, const Vector& normal, const Vector& color): point(point), normal(normal), color(color) {
+        this-> point = point;
+        this-> normal = normal;
+        this-> color = color;
         a = normal.x;
         b = normal.y;
         c = normal.z;
