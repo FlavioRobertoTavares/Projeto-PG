@@ -4,13 +4,14 @@ import os
 import subprocess
 
 # Dados para páginas
-page_name = {0: "Iniciar câmera\n(sempre comece por aqui)", 1 : "Gerar uma esfera", 2 : "Gerar um plano", 3 : "Gerar uma malha de triângulos"}
-object_name = {1 : "sphere", 2 : "plane", 3: "mesh"}
+page_name = {0: "Iniciar câmera\n(sempre comece por aqui)", 1 : "Gerar uma esfera", 2 : "Gerar um plano", 3 : "Gerar uma malha de triângulos", 4 : "Transformar um objeto"}
+object_name = {1 : "sphere", 2 : "plane", 3: "mesh", 4 : "transf"}
 data_pages = [
     ["origin", "target", "up", "cor", "height", "length", "distance"],
     ["center", "radius", "sp_color"],
     ["plane_origin", "plane_normal", "plane_cor"],
     ["total_triangles", "total_vertex", "list_vertex", "list_index", "mesh_color"]
+    ["objetc_name", "object_index", "matrix_line_1", "matrix_line_2", "matrix_line_3", "matrix_line_4"]
 ]
 def compile_and_run():
 
