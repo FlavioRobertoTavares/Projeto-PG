@@ -11,7 +11,7 @@ data_pages = [
     ["center", "radius", "sp_color"],
     ["plane_origin", "plane_normal", "plane_cor"],
     ["total_triangles", "total_vertex", "list_vertex", "list_index", "mesh_color"],
-    ["objetc_name", "object_index", "matrix_line_1", "matrix_line_2", "matrix_line_3", "matrix_line_4"]
+    ["objetc_name", "object_index", "rotate? eixo, ang", "matrix_line_1", "matrix_line_2", "matrix_line_3", "matrix_line_4"]
 ]
 def compile_and_run():
 

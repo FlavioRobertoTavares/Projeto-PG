@@ -4,6 +4,7 @@
 #include "vector.h"
 #include "point.h"
 #include "ray.h"
+#include <cmath>
 using namespace std;
 
 class Matrix{
@@ -185,6 +186,36 @@ class Matrix{
             return v;
         }
 
+        vector<vector<double>> initialize(string eixo, double ang){
+                ang = ang*3.14159292004/180;
+                if(eixo == "x"){
+                         vector<vector<double>> rotate{
+                               {1, 0, 0, 0},
+                               {0, cos(ang), -sin(ang), 0},
+                               {0, sin(ang), cos(ang), 0},
+                               {0, 0, 0, 1} 
+                        };
+                        return rotate;
+
+                }else if(eixo == "y"){
+                        vector<vector<double>> rotate{
+                               {cos(ang), 0, sin(ang), 0},
+                               {0, 1, 0, 0},
+                               {-sin(ang),0 , cos(ang), 0},
+                               {0, 0, 0, 1} 
+                        };
+                        return rotate;
+
+                }else if(eixo == "z"){
+                        vector<vector<double>> rotate{
+                               {cos(ang), -sin(ang), 0, 0},
+                               {sin(ang), cos(ang), 0, 0},
+                               {0, 0, 1, 0},
+                               {0, 0, 0, 1} 
+                        };
+                        return rotate;
+                }
+        }
 
 };
 

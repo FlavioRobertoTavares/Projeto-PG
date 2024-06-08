@@ -44,6 +44,7 @@ void Render(const CAM &cam, const vector<Sphere> &Spheres, vector<Plane> &Planes
         RGB = mesh.color;
         distances.push_back(make_pair(dist, RGB));
     }
+
     //Aqui ele organiza para pegar a menor dist, a de indice 0, se tal dist for == 0, ele coloca a cor da câmera
     sort(distances.begin(), distances.end(), return_min_dist);
     dist = distances[0].first;
@@ -147,16 +148,24 @@ int main(){
             Meshs.push_back(mesh);
 
         }else if(input == "transf"){
-            string object;
+            string object, eixo;
             int index;
+            bool rotate;
+            double ang;
 
             //ex: sphere 2 (a terceira esfera)
-            cin >> object >> index;
+            cin >> object >> index >> rotate;
 
             Matrix matrix = Matrix();
-            for(int i = 0; i < 4; i++){
-                for(int j = 0; j < 4; j++){
-                    cin >> matrix.elements[i][j];
+            if(rotate){
+                cin >> eixo >> ang;
+                matrix.elements = matrix.initialize(eixo, ang);
+
+            }else{
+                for(int i = 0; i < 4; i++){
+                    for(int j = 0; j < 4; j++){
+                        cin >> matrix.elements[i][j];
+                    }
                 }
             }
 
