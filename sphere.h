@@ -4,18 +4,16 @@
 #include <math.h>
 #include "vector.h"
 #include "point.h"
+#include "objects.h"
 #include "ray.h"
 using namespace std;
 
-class Sphere {
+class Sphere: public Object {
     public:
-        Sphere(Point center, double radius, Vector color) {
-            this->center = center;
-            this->radius = radius;
-            this->color = color;
-        }
+        Sphere(Point center, double radius, Vector color) 
+        :  center(center), radius(radius), Object(color) {}
 
-        double intersect(const ray &r){
+        double intersect(const ray &r) override {
             double distance;
             Vector oc = center - r.origin();
             double A = r.direction().dot(r.direction().x, r.direction().y, r.direction().z);
@@ -51,7 +49,6 @@ class Sphere {
 
         Point center;
         double radius;
-        Vector color;
 };
 
 #endif

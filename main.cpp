@@ -6,6 +6,7 @@
 #include "vector.h"
 #include "point.h"
 #include "cam.h"
+#include "objects.h"
 #include "ray.h"
 #include "sphere.h"
 #include "plane.h"
@@ -22,26 +23,14 @@ bool return_min_dist(const pair<double, Vector> &dist1, const pair<double, Vecto
 
 //Vai passar por todas as esferas e planos da lista Spheres e Planes, para então ver qual tem a menor dist entre eles
 //E então printa a cor na tela
-void Render(const CAM &cam, const vector<Sphere> &Spheres, vector<Plane> &Planes, vector<Mesh> &Meshs ,const ray &raio){
+void Render(const CAM &cam, const vector<Object*> &Objects ,const ray &raio){
     vector<pair<double, Vector>> distances;
     double dist;
     Vector RGB;
 
-    for(Sphere sphere : Spheres){
-        dist = sphere.intersect(raio);
-        RGB = sphere.color;
-        distances.push_back(make_pair(dist, RGB));
-    }
-
-    for(Plane plane : Planes){
-        dist = plane.intersect(raio);
-        RGB = plane.color;
-        distances.push_back(make_pair(dist, RGB));
-    }
-
-    for(Mesh mesh : Meshs){
-        dist = mesh.intersect(raio);
-        RGB = mesh.color;
+    for(const auto& object : Objects){
+        dist = object->intersect(raio);
+        RGB = object->color;
         distances.push_back(make_pair(dist, RGB));
     }
 
@@ -191,13 +180,19 @@ int main(){
         }
     }
 
+    //Unindo todos os objetos em um vector só usando armazenamento polimórfico
+    vector<Object*> Objects;
+    for(Sphere& sphere : Spheres){Objects.push_back(&sphere);}
+    for(Plane& plane : Planes){Objects.push_back(&plane);}
+    for(Mesh& mesh : Meshs){Objects.push_back(&mesh);}
+
     cout << "P3\n" << length << " " << height << "\n255\n";
     
     for(double y = 0; y < height; y++){
         for(double x = 0; x < length; x++){
             ray raio = ray(cam.origin, sup_esquerdo + (passo_x*x) - (passo_y*y));
             //Aqui ele manda o raio pra renderizar a cor certa na tela
-            Render(cam, Spheres, Planes, Meshs, raio);
+            Render(cam, Objects, raio);
         }
     }
 

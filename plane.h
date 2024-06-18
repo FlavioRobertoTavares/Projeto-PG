@@ -3,22 +3,17 @@
 
 #include "vector.h"
 #include "point.h"
+#include "objects.h"
 #include "ray.h"
 using namespace std;
 
-class Plane {
+class Plane: public Object {
 public:
     double a, b, c, d; // Coeficientes do plano
     Point point;
     Vector normal;
-    Vector color;
 
-    Plane(double a, double b, double c, double d) : a(a), b(b), c(c), d(d) {}
-
-    Plane(const Point& point, const Vector& normal, const Vector& color): point(point), normal(normal), color(color) {
-        this-> point = point;
-        this-> normal = normal;
-        this-> color = color;
+    Plane(const Point& point, const Vector& normal, const Vector& color) : point(point), normal(normal), Object(color) {
         a = normal.x;
         b = normal.y;
         c = normal.z;
@@ -26,7 +21,7 @@ public:
         d = -(a * point.x + b * point.y + c * point.z);
     }
 
-    double intersect(const ray &r){
+    double intersect(const ray &r) override {
         
          //Agora só retorna se não for menor que 0
 

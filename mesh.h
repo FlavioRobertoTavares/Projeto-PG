@@ -7,6 +7,7 @@
 #include "point.h"
 #include "ray.h"
 #include "plane.h"
+#include "objects.h"
 #include <vector>
 #include <utility>
 #include <algorithm>
@@ -63,7 +64,7 @@ class Triangle{
 };
 
 
-class Mesh{
+class Mesh: public Object{
     public:
         double nTriangles; 
         double nVertex;
@@ -73,14 +74,8 @@ class Mesh{
         vector <Triangle> Triangles;
 
 
-        Mesh(int nTriangles, int nVertex, vector<Point> Vertices, vector<vector<int>> triplas, Vector color){
-
-            this->nTriangles = nTriangles;
-            this->nVertex = nVertex;
-            this->triplas = triplas;
-            this->Vertices = Vertices;
-            this->color = color;
-
+        Mesh(int nTriangles, int nVertex, vector<Point> Vertices, vector<vector<int>> triplas, Vector color)
+        : nTriangles(nTriangles), nVertex(nVertex), Vertices(Vertices), triplas(triplas), Object(color){
             for(int i=0; i<nTriangles; i++){
                 Point A = Vertices[triplas[i][0]];
                 Point B = Vertices[triplas[i][1]];
@@ -90,9 +85,7 @@ class Mesh{
             }
         }
 
-
-
-        double intersect(const ray& r){
+        double intersect(const ray& r) override {
             double dist;
             double menor_dist = INT_FAST16_MAX;
             for(Triangle tri : Triangles){
