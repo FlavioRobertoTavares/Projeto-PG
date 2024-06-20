@@ -4,14 +4,15 @@ import os
 import subprocess
 
 # Dados para páginas
-page_name = {0: "Iniciar câmera\n(sempre comece por aqui)", 1 : "Gerar uma esfera", 2 : "Gerar um plano", 3 : "Gerar uma malha de triângulos", 4 : "Transformar um objeto"}
-object_name = {1 : "sphere", 2 : "plane", 3: "mesh", 4 : "transf"}
+page_name = {0: "Iniciar câmera\n(sempre comece por aqui)", 1 : "Gerar uma esfera", 2 : "Gerar um plano", 3 : "Gerar uma malha de triângulos", 4 : "Transformar um objeto", 5 : "Gerar uma fonte de luz"}
+object_name = {1 : "sphere", 2 : "plane", 3: "mesh", 4 : "transf", 5 : "light"}
 data_pages = [
     ["origin", "target", "up", "cor", "height", "length", "distance"],
     ["center", "radius", "sp_color", "kd", "ks", "ka", "kr", "kt", "nrugo"],
     ["plane_origin", "plane_normal", "plane_cor", "kd", "ks", "ka", "kr", "kt", "nrugo"],
     ["total_triangles", "total_vertex", "list_vertex", "list_index", "mesh_color", "kd", "ks", "ka", "kr", "kt", "nrugo"],
-    ["objetc_name", "object_index", "rotate? eixo, ang", "matrix_line_1", "matrix_line_2", "matrix_line_3", "matrix_line_4"]
+    ["objetc_name", "object_index", "rotate? eixo, ang", "matrix_line_1", "matrix_line_2", "matrix_line_3", "matrix_line_4"],
+    ["light origin", "light intensity (color)", "ambient color"]
 ]
 
 def compile_and_run():

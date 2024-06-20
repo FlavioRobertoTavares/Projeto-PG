@@ -12,6 +12,7 @@
 #include "plane.h"
 #include "mesh.h"
 #include "matrix.h"
+#include "light.h"
 using namespace std;
 
 //Organiza a lista do menor pro maior, mas se for 0, ele coloca no final da lista
@@ -21,12 +22,9 @@ bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Obje
     return dist1.first < dist2.first;
 }
 
-Vector Phong(CAM cam, Object* Object, ray raio, double t){
+Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
     Vector N = Object->returnNormal(raio, t); //Retorna a normal N que será usada no Phong
     auto example = Object->ka; //Retorna o ka do Phong, só fazer o mesmo para os outros
-
-    //Tá faltando colocar no escopo da função  o Light ligths que é a lista de luzes que vão iterar no sigma de phong
-    //Quando vitoria fizer a classe light eu atualizo aqui
 
     return Vector(0, 0, 0);
 }
@@ -34,7 +32,7 @@ Vector Phong(CAM cam, Object* Object, ray raio, double t){
 
 //Vai passar por todas as esferas e planos da lista Spheres e Planes, para então ver qual tem a menor dist entre eles
 //E então printa a cor na tela
-void Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio){
+void Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, const vector<Light> &Lights){
     vector<pair<double, Object*>> distances;
     double dist;
     Vector RGB;
@@ -53,7 +51,7 @@ void Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio){
     if( (dist == 0) || (dist < cam.distance) ){
         RGB = cam.cor;
     }else{
-        RGB = Phong(cam, Object, raio, dist);
+        RGB = Phong(cam, Object, raio, dist, Lights);
     }
     
     cout << RGB.x << ' ' << RGB.y << ' ' << RGB.z << '\n';
@@ -65,6 +63,7 @@ int main(){
     vector<Sphere> Spheres;
     vector<Plane> Planes;
     vector<Mesh> Meshs;
+    vector<Light> Lights;
 
     int nTriangles;
     int nVertex;
@@ -111,6 +110,7 @@ int main(){
             Vector ambient_colour = Vector (x, y, z);
 
             Light light (light_origin, light_intensity, ambient_colour);
+            Lights.push_back(light);
 
         } else if(input == "sphere"){
         
@@ -236,7 +236,7 @@ int main(){
         for(double x = 0; x < length; x++){
             ray raio = ray(cam.origin, sup_esquerdo + (passo_x*x) - (passo_y*y));
             //Aqui ele manda o raio pra renderizar a cor certa na tela
-            Render(cam, Objects, raio);
+            Render(cam, Objects, raio, Lights);
         }
     }
 
