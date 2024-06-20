@@ -22,7 +22,7 @@ bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Obje
 }
 
 Vector Phong(CAM cam, Object* Object, ray raio, double t){
-    Vector normal = Object->returnNormal(raio, t); //Retorna a normal N que será usada no Phong
+    Vector N = Object->returnNormal(raio, t); //Retorna a normal N que será usada no Phong
     auto example = Object->ka; //Retorna o ka do Phong, só fazer o mesmo para os outros
 
     //Tá faltando colocar no escopo da função  o Light ligths que é a lista de luzes que vão iterar no sigma de phong
