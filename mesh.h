@@ -98,11 +98,15 @@ class Mesh: public Object{
 
         // percorre todos os triangulos e verifica qual foi atingido
         
-        Vector returnNormal(const ray& r, double t) const override {
-            for (const Triangle& tri : Triangles) {
+        Vector returnNormal(const ray& r, double t) override {
+            for (Triangle tri : Triangles) {
                 double distance = tri.intersect(r);
                 if (distance > 0 && distance == t) {
                     Vector normal = (tri.B - tri.A) % (tri.C - tri.A);
+                    
+                    // inverte a direção da normal se ela for igual a direção do raio
+                    if(r.direction().dot(normal.x, normal.y, normal.z) > 0){normal = normal*(-1);}
+
                     normal.make_unit_vector();
                     // retorna a normal desse triangulo na posição de interseção
                     return normal;

@@ -40,7 +40,11 @@ public:
 
     // retorna a normal que definida na inicialização
     // é constante ao longo de todo o plano
-    Vector returnNormal(const ray& r, double t) const override {
+    Vector returnNormal(const ray& r, double t) override {
+
+         // inverte a direção da normal se ela for igual a direção do raio
+        if(r.direction().dot(normal.x, normal.y, normal.z) > 0){normal = normal*(-1);}
+
         return normal;
     }
 
