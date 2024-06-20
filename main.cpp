@@ -15,30 +15,46 @@
 using namespace std;
 
 //Organiza a lista do menor pro maior, mas se for 0, ele coloca no final da lista
-bool return_min_dist(const pair<double, Vector> &dist1, const pair<double, Vector> &dist2){
+bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Object*> &dist2){
     if(dist1.first == 0){return false;}
     if(dist2.first == 0){return true;}
     return dist1.first < dist2.first;
 }
 
+Vector Phong(CAM cam, Object* Object, ray raio, double t){
+    Vector normal = Object->returnNormal(raio, t); //Retorna a normal N que será usada no Phong
+    auto example = Object->ka; //Retorna o ka do Phong, só fazer o mesmo para os outros
+
+    //Tá faltando colocar no escopo da função  o Light ligths que é a lista de luzes que vão iterar no sigma de phong
+    //Quando vitoria fizer a classe light eu atualizo aqui
+
+    return Vector(0, 0, 0);
+}
+
+
 //Vai passar por todas as esferas e planos da lista Spheres e Planes, para então ver qual tem a menor dist entre eles
 //E então printa a cor na tela
-void Render(const CAM &cam, const vector<Object*> &Objects ,const ray &raio){
-    vector<pair<double, Vector>> distances;
+void Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio){
+    vector<pair<double, Object*>> distances;
     double dist;
     Vector RGB;
+    Object* Object;
 
     for(const auto& object : Objects){
         dist = object->intersect(raio);
-        RGB = object->color;
-        distances.push_back(make_pair(dist, RGB));
+        distances.push_back(make_pair(dist, object));
     }
 
     //Aqui ele organiza para pegar a menor dist, a de indice 0, se tal dist for == 0, ele coloca a cor da câmera
     sort(distances.begin(), distances.end(), return_min_dist);
     dist = distances[0].first;
-    RGB = distances[0].second;
-    if( (dist == 0) || (dist < cam.distance) ){RGB = cam.cor;}
+    Object = distances[0].second;
+    
+    if( (dist == 0) || (dist < cam.distance) ){
+        RGB = cam.cor;
+    }else{
+        RGB = Phong(cam, Object, raio, dist);
+    }
     
     cout << RGB.x << ' ' << RGB.y << ' ' << RGB.z << '\n';
 }
