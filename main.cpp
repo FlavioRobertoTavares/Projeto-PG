@@ -99,7 +99,20 @@ int main(){
 
     for(string input = ""; input != "generate"; cin >> input){
 
-        if(input == "sphere"){
+        if (input == "light"){
+
+            cin >> x >> y >> z;
+            Point light_origin = Point (x, y, z);
+
+            cin >> x >> y >> z;
+            Vector light_intensity = Vector (x, y, z);
+
+            cin >> x >> y >> z;
+            Vector ambient_colour = Vector (x, y, z);
+
+            Light light (light_origin, light_intensity, ambient_colour);
+
+        } else if(input == "sphere"){
         
             cin >> x >> y >> z;
             Point center = Point(x, y, z);
