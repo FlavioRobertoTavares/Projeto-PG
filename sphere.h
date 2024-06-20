@@ -10,8 +10,8 @@ using namespace std;
 
 class Sphere: public Object {
     public:
-        Sphere(Point center, double radius, Vector color) 
-        :  center(center), radius(radius), Object(color) {}
+        Sphere(Point center, double radius, Vector color, double kd, double ks, double ka, double kr, double kt, double nrugo) 
+        : center(center), radius(radius), Object(color, kd, ks, ka, kr, kt, nrugo) {}
 
         double intersect(const ray &r) override {
             double distance;
@@ -45,6 +45,13 @@ class Sphere: public Object {
 
             return distance;
 
+        }
+
+        //calculada como o vetor unitário que aponta do centro da esfera para o ponto de interseção
+        Vector returnNormal(const ray& r, double t) const override {
+            Point intersection_point = r.at(t);
+            Vector outward_normal = (intersection_point - center) / radius;
+            return outward_normal;
         }
 
         Point center;

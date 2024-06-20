@@ -13,7 +13,8 @@ public:
     Point point;
     Vector normal;
 
-    Plane(const Point& point, const Vector& normal, const Vector& color) : point(point), normal(normal), Object(color) {
+    Plane(const Point& point, const Vector& normal, const Vector& color, double kd, double ks, double ka, double kr, double kt, double nrugo) 
+    : point(point), normal(normal), Object(color, kd, ks, ka, kr, kt, nrugo) {
         a = normal.x;
         b = normal.y;
         c = normal.z;
@@ -35,6 +36,12 @@ public:
         }
         return 0;
 
+    }
+
+    // retorna a normal que definida na inicialização
+    // é constante ao longo de todo o plano
+    Vector returnNormal(const ray& r, double t) const override {
+        return normal;
     }
 
     Vector normalVector() const {

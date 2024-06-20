@@ -93,8 +93,11 @@ int main(){
 
             cin >> x >> y >> z;
             Vector sp_color = Vector(x, y ,z);
+
+            double kd, ks, ka, kr, kt, nrugo;
+            cin >> kd >> ks >> ka >> kr >> kt >> nrugo;
             
-            Sphere sphere = Sphere(center, radius, sp_color);
+            Sphere sphere = Sphere(center, radius, sp_color, kd, ks, ka, kr, kt, nrugo);
             Spheres.push_back(sphere);
         
         }else if(input == "plane"){
@@ -107,8 +110,11 @@ int main(){
 
             cin >> x >> y >> z;
             Vector plane_cor = Vector(x, y, z);
+
+            double kd, ks, ka, kr, kt, nrugo;
+            cin >> kd >> ks >> ka >> kr >> kt >> nrugo;
             
-            Plane plane = Plane(plane_origin, plane_normal, plane_cor);
+            Plane plane = Plane(plane_origin, plane_normal, plane_cor, kd, ks, ka, kr, kt, nrugo);
             Planes.push_back(plane);
         }
         else if(input == "mesh"){
@@ -130,7 +136,10 @@ int main(){
             cin >> x >> y >> z;
             Vector mesh_color = Vector(x, y, z);
 
-            Mesh mesh = Mesh(nTriangles, nVertex, Vertices, triplas, mesh_color);
+            double kd, ks, ka, kr, kt, nrugo;
+            cin >> kd >> ks >> ka >> kr >> kt >> nrugo;
+
+            Mesh mesh = Mesh(nTriangles, nVertex, Vertices, triplas, mesh_color, kd, ks, ka, kr, kt, nrugo);
             triplas.clear();
             Vertices.clear();
 
@@ -160,22 +169,28 @@ int main(){
 
             if(object == "sphere"){
                 Point center = matrix.transform_point(Spheres[index].center);
-                Spheres[index] = Sphere(center, Spheres[index].radius, Spheres[index].color);
+                Spheres[index] = Sphere(center, Spheres[index].radius, Spheres[index].color,
+                                Spheres[index].kd, Spheres[index].ks, Spheres[index].ka, 
+                                Spheres[index].kr, Spheres[index].kt, Spheres[index].nrugo);
+
             
             }else if(object == "plane"){
                 Point origin = matrix.transform_point(Planes[index].point);
                 Vector normal = matrix.transform_vector(Planes[index].normal);
-                Planes[index] = Plane(origin, normal, Planes[index].color);
+                Planes[index] = Plane(origin, normal, Planes[index].color,
+                          Planes[index].kd, Planes[index].ks, Planes[index].ka, 
+                          Planes[index].kr, Planes[index].kt, Planes[index].nrugo);
 
             }else if(object == "mesh"){
                 vector<Point> newVertices;
-                for(Point vertice : Meshs[index].Vertices){
+                for (Point vertice : Meshs[index].Vertices) {
                     Point newVertice = matrix.transform_point(vertice);
                     newVertices.push_back(newVertice);
                 }
-                Meshs[index] = Mesh(Meshs[index].nTriangles, Meshs[index].nVertex, newVertices, Meshs[index].triplas, Meshs[index].color);
+                Meshs[index] = Mesh(Meshs[index].nTriangles, Meshs[index].nVertex, newVertices, Meshs[index].triplas, 
+                                    Meshs[index].color, Meshs[index].kd, Meshs[index].ks, Meshs[index].ka, 
+                                    Meshs[index].kr, Meshs[index].kt, Meshs[index].nrugo);
                 newVertices.clear();
-                
             }
         }
     }

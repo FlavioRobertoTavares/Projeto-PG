@@ -39,7 +39,7 @@ class Triangle{
 
         double intersect(const ray& r){
             Vector normal = (B - A) % (C - A);
-            Plane plane = Plane(A, normal, Vector(0, 0, 0));
+            Plane plane = Plane(A, normal, Vector(0, 0, 0), 0, 0, 0, 0, 0, 0); // Valores dummy para kd, ks, etc.
             double distance = plane.intersect(r);
             if(distance == 0){return 0;}
             Point P = r.at(distance);
@@ -74,8 +74,8 @@ class Mesh: public Object{
         vector <Triangle> Triangles;
 
 
-        Mesh(int nTriangles, int nVertex, vector<Point> Vertices, vector<vector<int>> triplas, Vector color)
-        : nTriangles(nTriangles), nVertex(nVertex), Vertices(Vertices), triplas(triplas), Object(color){
+        Mesh(int nTriangles, int nVertex, vector<Point> Vertices, vector<vector<int>> triplas, Vector color, double kd, double ks, double ka, double kr, double kt, double nrugo)
+        : nTriangles(nTriangles), nVertex(nVertex), Vertices(Vertices), triplas(triplas), Object(color, kd, ks, ka, kr, kt, nrugo) {
             for(int i=0; i<nTriangles; i++){
                 Point A = Vertices[triplas[i][0]];
                 Point B = Vertices[triplas[i][1]];
@@ -94,6 +94,21 @@ class Mesh: public Object{
             }
             if(menor_dist == INT_FAST16_MAX){return 0;}
             return menor_dist;
+        }
+
+        // percorre todos os triangulos e verifica qual foi atingido
+        
+        Vector returnNormal(const ray& r, double t) const override {
+            for (const Triangle& tri : Triangles) {
+                double distance = tri.intersect(r);
+                if (distance > 0 && distance == t) {
+                    Vector normal = (tri.B - tri.A) % (tri.C - tri.A);
+                    normal.make_unit_vector();
+                    // retorna a normal desse triangulo na posição de interseção
+                    return normal;
+                }
+            }
+            return Vector(0, 0, 0); // Return zero vector if no intersection found
         }
 
 };

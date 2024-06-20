@@ -16,7 +16,6 @@ int main(){
             double x;
             cin >> x;
             matrix.elements[i][j] = x;
-
         }
     }
 
@@ -27,13 +26,9 @@ int main(){
    for(int i = 0; i < 4; i++){
         for(int j = 0; j < 4; j++){
             cout << matrix.elements_inverse[i][j] << "       ";
-            
         }
         cout << endl;
     }
-
-
-
 
     return 0;
 }

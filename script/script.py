@@ -8,11 +8,12 @@ page_name = {0: "Iniciar câmera\n(sempre comece por aqui)", 1 : "Gerar uma esfe
 object_name = {1 : "sphere", 2 : "plane", 3: "mesh", 4 : "transf"}
 data_pages = [
     ["origin", "target", "up", "cor", "height", "length", "distance"],
-    ["center", "radius", "sp_color"],
-    ["plane_origin", "plane_normal", "plane_cor"],
-    ["total_triangles", "total_vertex", "list_vertex", "list_index", "mesh_color"],
+    ["center", "radius", "sp_color", "kd", "ks", "ka", "kr", "kt", "nrugo"],
+    ["plane_origin", "plane_normal", "plane_cor", "kd", "ks", "ka", "kr", "kt", "nrugo"],
+    ["total_triangles", "total_vertex", "list_vertex", "list_index", "mesh_color", "kd", "ks", "ka", "kr", "kt", "nrugo"],
     ["objetc_name", "object_index", "rotate? eixo, ang", "matrix_line_1", "matrix_line_2", "matrix_line_3", "matrix_line_4"]
 ]
+
 def compile_and_run():
 
     if os.path.exists("input.txt"):
@@ -31,7 +32,6 @@ def compile_and_run():
     
     #fecha e limpa o input
     on_closing()
-    
 
 def clear_input_file():
     with open("input.txt", "w") as file:
@@ -76,7 +76,6 @@ def save_current_json(append=False):
 
     with open("data.json", "w") as file:
         json.dump(data_to_save, file)
-
 
 def write_to_file():
     for i in range(len(data_pages)):
