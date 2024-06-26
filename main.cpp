@@ -15,6 +15,7 @@
 #include "light.h"
 using namespace std;
 
+
 //Organiza a lista do menor pro maior, mas se for 0, ele coloca no final da lista
 bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Object*> &dist2){
     if(dist1.first == 0){return false;}
@@ -23,10 +24,39 @@ bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Obje
 }
 
 Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
-    Vector N = Object->returnNormal(raio, t); //Retorna a normal N que será usada no Phong
-    auto example = Object->ka; //Retorna o ka do Phong, só fazer o mesmo para os outros
 
-    return Vector(0, 0, 0);
+    double ka, ks, kd, kr, kt, nrugo;
+    Vector N, ambient_light, Od, normal, ILi, Li, Ri, V, Difusa, Especular, I;
+
+    N = (Object->returnNormal(raio, t)).make_unit_vector(); //Retorna a normal N que será usada no Phong
+    ambient_light = cam.ambient_light;
+    
+    ka = Object->ka; //Retorna o ka do Phong, só fazer o mesmo para os outros
+    ks = Object->ks;
+    kd = Object->kd;
+    //double kr = Object->kr;
+    //double kt = Object->kt;
+    nrugo = Object->nrugo;
+
+    Od = Object->color;
+
+    normal = Object->returnNormal(raio, t);
+
+    for(Light& light: Lights){
+        ILi = light.intensity;
+        Li = (light.origin - raio.at(t)).make_unit_vector();
+        Ri = ((normal*2)*(Li.dot(normal.x, normal.y, normal.z))- Li).make_unit_vector();
+
+        V = raio.direction();
+        Difusa = ILi*Od*kd*(normal.dot(Li.x, Li.y, Li.z));
+        Especular = ILi*ks*pow(Ri.dot(V.x, V.y, V.z), nrugo);
+
+        I = I + Difusa + Especular;
+    }
+
+    I = ambient_light*ka + I;
+
+    return I;
 }
 
 
@@ -69,7 +99,7 @@ int main(){
     int nVertex;
     vector<Point> Vertices;
     Vector color;
-
+    Vector ambient_light;
     cin >> x >> y >> z;
     Point origin = Point(x, y, z);
 
@@ -91,7 +121,10 @@ int main(){
     cin >> foo;
     distance = foo;
 
-    CAM cam = CAM(origin, target, up, cor, height, length, distance);
+    cin >> x >> y >> z;
+    ambient_light = Vector(x, y, z);
+
+    CAM cam = CAM(origin, target, up, cor, height, length, distance, ambient_light);
     Vector sup_esquerdo = cam.W*(cam.distance) + cam.V - cam.U ;
     Vector passo_x = cam.U*(2/(length-1));
     Vector passo_y = cam.V*(2/(height-1));    
@@ -106,10 +139,10 @@ int main(){
             cin >> x >> y >> z;
             Vector light_intensity = Vector (x, y, z);
 
-            cin >> x >> y >> z;
-            Vector ambient_colour = Vector (x, y, z);
+            // cin >> x >> y >> z;
+            // Vector ambient_colour = Vector (x, y, z);
 
-            Light light (light_origin, light_intensity, ambient_colour);
+            Light light (light_origin, light_intensity);
             Lights.push_back(light);
 
         } else if(input == "sphere"){
@@ -135,7 +168,7 @@ int main(){
             Point plane_origin = Point(x, y, z);
 
             cin >> x >> y >> z;
-            Vector plane_normal = Vector(x, y, z);
+              Vector plane_normal = Vector(x, y, z);
 
             cin >> x >> y >> z;
             Vector plane_cor = Vector(x, y, z);
