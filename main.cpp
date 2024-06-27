@@ -25,10 +25,9 @@ bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Obje
 
 Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
 
-    double ka, ks, kd, kr, kt, nrugo;
-    Vector N, ambient_light, Od, normal, ILi, Li, Ri, V, Difusa, Especular, I;
-
-    N = (Object->returnNormal(raio, t)).make_unit_vector(); //Retorna a normal N que será usada no Phong
+    double ka, ks, kd, kr, kt, nrugo, espec, difuse;
+    Vector ambient_light, Od, normal, ILi, Li, Ri, V, Difusa, Especular, I;
+    
     ambient_light = cam.ambient_light;
     
     ka = Object->ka; //Retorna o ka do Phong, só fazer o mesmo para os outros
@@ -41,20 +40,31 @@ Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
     Od = Object->color;
 
     normal = Object->returnNormal(raio, t);
+    normal.make_unit_vector();
 
     for(Light& light: Lights){
         ILi = light.intensity;
-        Li = (light.origin - raio.at(t)).make_unit_vector();
-        Ri = ((normal*2)*(Li.dot(normal.x, normal.y, normal.z))- Li).make_unit_vector();
+        Li = (light.origin - raio.at(t));
+        Li.make_unit_vector();
+        Ri = ((normal*2)*(Li.dot(normal.x, normal.y, normal.z))- Li);
+        Ri.make_unit_vector();
 
-        V = raio.direction();
-        Difusa = ILi*Od*kd*(normal.dot(Li.x, Li.y, Li.z));
-        Especular = ILi*ks*pow(Ri.dot(V.x, V.y, V.z), nrugo);
+        V = cam.origin - raio.at(t);
+        V.make_unit_vector();
+        difuse = normal.dot(Li.x, Li.y, Li.z);
+        if (difuse > 0) {
+            I = I + ILi*Od*kd*difuse;
+        }
+        espec = Ri.dot(V.x, V.y, V.z);
+        if (espec > 0) {
+            I = I + ILi*ks*pow(espec, nrugo);
+        }
+        // Difusa = ILi*Od*kd*(normal.dot(Li.x, Li.y, Li.z));
+        // Especular = ILi*ks*pow(Ri.dot(V.x, V.y, V.z), nrugo);
 
-        I = I + Difusa + Especular;
     }
 
-    I = ambient_light*ka + I;
+    I = (ambient_light*ka)*Od + I;
 
     return I;
 }
