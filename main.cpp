@@ -42,7 +42,7 @@ Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
     normal = Object->returnNormal(raio, t);
     normal.make_unit_vector();
 
-    I = ambient_light*ka;
+    I = ambient_light*ka*Od;
 
     for(Light& light: Lights){
         IL = light.intensity;
@@ -57,13 +57,18 @@ Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
         V.make_unit_vector();
 
         difuse = normal.dot(L.x, L.y, L.z);
-        espec = R.dot(V.x, V.y, V.z);
+        if (difuse > 0) {
+            I = I + IL*Od*kd*difuse;
+        }
 
-        I = I + IL*Od*kd*max(0.0, difuse) + IL*ks*pow(max(0.0, espec), nrugo);
+        espec = R.dot(V.x, V.y, V.z);
+        if (espec > 0) {
+            I = I + IL*ks*pow(espec, nrugo);
+        }
+
     }
 
     I = Vector(min(255, int(I.x)), min(255, int(I.y)), min(255, int(I.z)));
-
     return I;
 }
 
@@ -133,7 +138,7 @@ int main(){
     ambient_light = Vector(x, y, z);
 
     CAM cam = CAM(origin, target, up, cor, height, length, distance, ambient_light);
-    Vector sup_esquerdo = cam.W*(cam.distance) - cam.V - cam.U ;
+    Vector sup_esquerdo = cam.W*(cam.distance) + cam.V - cam.U ;
     Vector passo_x = cam.U*(2/(length-1));
     Vector passo_y = cam.V*(2/(height-1));    
 
@@ -273,11 +278,10 @@ int main(){
 
     cout << "P3\n" << length << " " << height << "\n255\n";
     
-    for(double y = height - 1; y >= 0; y--){
+    for(double y = 0; y < height; y++){
         for(double x = 0; x < length; x++){
-            ray raio = ray(cam.origin, sup_esquerdo + (passo_x*x) + (passo_y*y));
+            ray raio = ray(cam.origin, sup_esquerdo + (passo_x*x) - (passo_y*y));
             Render(cam, Objects, raio, Lights);
-
         }
     }
 

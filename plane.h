@@ -25,7 +25,6 @@ public:
     double intersect(const ray &r) override {
         
          //Agora só retorna se não for menor que 0
-
         if(normal.dot(r.direction().x, r.direction().y, r.direction().z) != 0){
             double distance = (normal.dot(point.x, point.y, point.z) - normal.dot(r.origin().x, r.origin().y, r.origin().z)) / normal.dot(r.direction().x, r.direction().y, r.direction().z);
             if(distance < 0){
