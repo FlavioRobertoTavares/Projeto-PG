@@ -15,9 +15,9 @@ class Sphere: public Object {
 
         double intersect(const ray &r) override {
             double distance;
-            Vector oc = center - r.origin();
+            Vector oc = r.origin() - center;
             double A = r.direction().dot(r.direction().x, r.direction().y, r.direction().z);
-            double B = -2*r.direction().dot(oc.x, oc.y, oc.z);
+            double B = 2*r.direction().dot(oc.x, oc.y, oc.z);
             double C = oc.dot(oc.x, oc.y, oc.z) - pow(radius, 2);
 
             double Delta = pow(B, 2) - 4*A*C;
@@ -50,11 +50,9 @@ class Sphere: public Object {
         //calculada como o vetor unitário que aponta do centro da esfera para o ponto de interseção
         Vector returnNormal(const ray& r, double t) override {
             Point intersection_point = r.at(t);
-            Vector outward_normal = (intersection_point - center) / radius;
+            Vector outward_normal = intersection_point - center;
 
-             // inverte a direção da normal se ela for igual a direção do raio
-            if(r.direction().dot(outward_normal.x, outward_normal.y, outward_normal.z) > 0){outward_normal = outward_normal*(-1);}
-
+            //ok?
             return outward_normal;
         }
 

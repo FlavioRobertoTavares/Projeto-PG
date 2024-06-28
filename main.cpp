@@ -26,8 +26,8 @@ bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Obje
 Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
 
     double ka, ks, kd, kr, kt, nrugo, espec, difuse;
-    Vector ambient_light, Od, normal, ILi, Li, Ri, V, Difusa, Especular, I;
-    
+    Vector ambient_light, Od, normal, IL, L, R, V, Difusa, Especular, I;
+
     ambient_light = cam.ambient_light;
     
     ka = Object->ka; //Retorna o ka do Phong, só fazer o mesmo para os outros
@@ -42,29 +42,27 @@ Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
     normal = Object->returnNormal(raio, t);
     normal.make_unit_vector();
 
+    I = ambient_light*ka;
+
     for(Light& light: Lights){
-        ILi = light.intensity;
-        Li = (light.origin - raio.at(t));
-        Li.make_unit_vector();
-        Ri = ((normal*2)*(Li.dot(normal.x, normal.y, normal.z))- Li);
-        Ri.make_unit_vector();
+        IL = light.intensity;
+
+        L = light.origin - raio.at(t);
+        L.make_unit_vector();
+        
+        R = (normal*2)*(L.dot(normal.x, normal.y, normal.z)) - L;
+        R.make_unit_vector();
 
         V = cam.origin - raio.at(t);
         V.make_unit_vector();
-        difuse = normal.dot(Li.x, Li.y, Li.z);
-        if (difuse > 0) {
-            I = I + ILi*Od*kd*difuse;
-        }
-        espec = Ri.dot(V.x, V.y, V.z);
-        if (espec > 0) {
-            I = I + ILi*ks*pow(espec, nrugo);
-        }
-        // Difusa = ILi*Od*kd*(normal.dot(Li.x, Li.y, Li.z));
-        // Especular = ILi*ks*pow(Ri.dot(V.x, V.y, V.z), nrugo);
 
+        difuse = normal.dot(L.x, L.y, L.z);
+        espec = R.dot(V.x, V.y, V.z);
+
+        I = I + IL*Od*kd*max(0.0, difuse) + IL*ks*pow(max(0.0, espec), nrugo);
     }
 
-    I = (ambient_light*ka)*Od + I;
+    I = Vector(min(255, int(I.x)), min(255, int(I.y)), min(255, int(I.z)));
 
     return I;
 }
@@ -135,7 +133,7 @@ int main(){
     ambient_light = Vector(x, y, z);
 
     CAM cam = CAM(origin, target, up, cor, height, length, distance, ambient_light);
-    Vector sup_esquerdo = cam.W*(cam.distance) + cam.V - cam.U ;
+    Vector sup_esquerdo = cam.W*(cam.distance) - cam.V - cam.U ;
     Vector passo_x = cam.U*(2/(length-1));
     Vector passo_y = cam.V*(2/(height-1));    
 
@@ -275,11 +273,11 @@ int main(){
 
     cout << "P3\n" << length << " " << height << "\n255\n";
     
-    for(double y = 0; y < height; y++){
+    for(double y = height - 1; y >= 0; y--){
         for(double x = 0; x < length; x++){
-            ray raio = ray(cam.origin, sup_esquerdo + (passo_x*x) - (passo_y*y));
-            //Aqui ele manda o raio pra renderizar a cor certa na tela
+            ray raio = ray(cam.origin, sup_esquerdo + (passo_x*x) + (passo_y*y));
             Render(cam, Objects, raio, Lights);
+
         }
     }
 
