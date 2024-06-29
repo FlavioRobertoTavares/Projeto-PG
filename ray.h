@@ -8,7 +8,9 @@ class ray {
   public:
     ray() {}
 
-    ray(const Point& origin, const Vector& direction) : orig(origin), dir(direction) {}
+    ray(const Point& origin, const Vector& direction) : orig(origin), dir(direction) {
+      dir.make_unit_vector();
+    }
 
     Point origin() const { return orig; }
     Vector direction() const { return dir; }

@@ -50,11 +50,10 @@ class Sphere: public Object {
         //calculada como o vetor unitário que aponta do centro da esfera para o ponto de interseção
         Vector returnNormal(const ray& r, double t) override {
             Point intersection_point = r.at(t);
-            Vector outward_normal = (intersection_point - center) / radius;
+            Vector outward_normal = intersection_point - center;
+            //if(r.direction().dot(outward_normal.x, outward_normal.y, outward_normal.z) > 0){outward_normal = outward_normal*(-1);}
 
-             // inverte a direção da normal se ela for igual a direção do raio
-            if(r.direction().dot(outward_normal.x, outward_normal.y, outward_normal.z) > 0){outward_normal = outward_normal*(-1);}
-
+            //ok?
             return outward_normal;
         }
 
