@@ -28,7 +28,7 @@ Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
     double ka, ks, kd, kr, kt, nrugo, espec, difuse;
     Vector ambient_light, Od, normal, IL, L, R, V, Difusa, Especular, I;
 
-    ambient_light = cam.ambient_light;
+    ambient_light = cam.ambient_light/255;
     
     ka = Object->ka; //Retorna o ka do Phong, só fazer o mesmo para os outros
     ks = Object->ks;
@@ -37,7 +37,7 @@ Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
     //double kt = Object->kt;
     nrugo = Object->nrugo;
 
-    Od = Object->color;
+    Od = Object->color/255;
 
     normal = Object->returnNormal(raio, t);
     normal.make_unit_vector();
@@ -45,7 +45,7 @@ Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
     I = ambient_light*ka*Od;
 
     for(Light& light: Lights){
-        IL = light.intensity;
+        IL = light.intensity/255;
 
         L = light.origin - raio.at(t);
         L.make_unit_vector();
@@ -67,7 +67,8 @@ Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
         }
 
     }
-
+    
+    I = I*255;
     I = Vector(min(255, int(I.x)), min(255, int(I.y)), min(255, int(I.z)));
     return I;
 }
