@@ -43,7 +43,7 @@ class Sphere: public Object {
                 distance = 0; 
             }
 
-            return distance;
+            return max(distance, 0.0);
 
         }
 

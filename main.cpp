@@ -15,6 +15,8 @@
 #include "light.h"
 using namespace std;
 
+Vector Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, const vector<Light> &Lights, int recursao_reflexao, int recursao_transmissao);
+Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights, vector<Object*> Recursao, int recursao_reflexao, int recursao_transmissao);
 
 //Organiza a lista do menor pro maior, mas se for 0, ele coloca no final da lista
 bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Object*> &dist2){
@@ -23,37 +25,39 @@ bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Obje
     return dist1.first < dist2.first;
 }
 
-Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
+Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights, vector<Object*> Recursao, int recursao_reflexao, int recursao_transmissao){
 
-    double ka, ks, kd, kr, kt, nrugo, espec, difuse;
-    Vector ambient_light, Od, normal, IL, L, R, V, Difusa, Especular, I;
+    double ka, ks, kd, kr, kt, nrugo, espec, difuse, n_transm;
+    Point Colisao;
+    Vector ambient_light, Od, normal, IL, L, R, V, Difusa, Especular, I, Refletido, Transmitido;
 
     ambient_light = cam.ambient_light/255;
     
-    ka = Object->ka; //Retorna o ka do Phong, só fazer o mesmo para os outros
-    ks = Object->ks;
-    kd = Object->kd;
-    //double kr = Object->kr;
-    //double kt = Object->kt;
-    nrugo = Object->nrugo;
+    ka = Objectt->ka;
+    ks = Objectt->ks;
+    kd = Objectt->kd;
+    kr = Objectt->kr;
+    kt = Objectt->kt;
+    nrugo = Objectt->nrugo;
 
-    Od = Object->color/255;
+    Od = Objectt->color/255;
 
-    normal = Object->returnNormal(raio, t);
+    normal = Objectt->returnNormal(raio, t);
     normal.make_unit_vector();
 
     I = ambient_light*ka*Od;
 
     for(Light& light: Lights){
         IL = light.intensity/255;
+        Colisao = raio.at(t);
 
-        L = light.origin - raio.at(t);
+        L = light.origin - Colisao;
         L.make_unit_vector();
         
         R = (normal*2)*(L.dot(normal.x, normal.y, normal.z)) - L;
         R.make_unit_vector();
 
-        V = cam.origin - raio.at(t);
+        V = cam.origin - Colisao;
         V.make_unit_vector();
 
         difuse = normal.dot(L.x, L.y, L.z);
@@ -67,16 +71,30 @@ Vector Phong(CAM cam, Object* Object, ray raio, double t, vector<Light> Lights){
         }
 
     }
+
+    /*
+    Um duvida que eu tenho sobre essa parte, a gente usa o V da luz para calcular a direção da reflexão
+    Mas e se não tiver nenhuma luz? Nada vai ser refletido? Porque teoricamente não iriamos ter V
+    E se tivermos mais de uma luz? Teriamos que salvar cada V e fazer as 3 recursões para cada um deles?
+
+    */
+    Refletido = (normal*2)*(V.dot(normal.x, normal.y, normal.z)) - V; 
+    if(recursao_reflexao < 3){
+        I = I + Render(cam, Recursao, ray(Colisao, Refletido), Lights, recursao_reflexao + 1, recursao_transmissao)*kr;
+    }
+
+    /* Descomentar para terminar a refração/transmissão
+    n_transm = 0; //Calcular o n, não entendi direito como
+    Transmitido = Vector(0, 0, 0); //Calcular o T, não entendi direto
+    if(recursao_transmissao < 3){
+        I = I + Render(cam, Recursao, ray(Colisao, Refletido), Lights, recursao_reflexao, recursao_transmissao + 1)*kt;
+    }
+    */
     
-    I = I*255;
-    I = Vector(min(255, int(I.x)), min(255, int(I.y)), min(255, int(I.z)));
     return I;
 }
 
-
-//Vai passar por todas as esferas e planos da lista Spheres e Planes, para então ver qual tem a menor dist entre eles
-//E então printa a cor na tela
-void Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, const vector<Light> &Lights){
+Vector Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, const vector<Light> &Lights, int recursao_reflexao, int recursao_transmissao){
     vector<pair<double, Object*>> distances;
     double dist;
     Vector RGB;
@@ -84,25 +102,25 @@ void Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, con
 
     for(const auto& object : Objects){
         dist = object->intersect(raio);
-        distances.push_back(make_pair(dist, object));
+        if(dist > 0.2){distances.push_back(make_pair(dist, object));} //Afeta a "granulação", achar um valor legal para por
     }
 
-    //Aqui ele organiza para pegar a menor dist, a de indice 0, se tal dist for == 0, ele coloca a cor da câmera
+    if(distances.empty()){return cam.cor/255;}
     sort(distances.begin(), distances.end(), return_min_dist);
     dist = distances[0].first;
     Object = distances[0].second;
     
-    if( (dist == 0) || (dist < cam.distance) ){
-        RGB = cam.cor;
+    if(dist == 0){ //Cuidado, pode quebrar Reflexão!!!!!!!!!! Tem que considerar a distância para a câmera???
+        RGB = cam.cor/255;
     }else{
-        RGB = Phong(cam, Object, raio, dist, Lights);
+        RGB = Phong(cam, Object, raio, dist, Lights, Objects, recursao_reflexao, recursao_transmissao);
     }
     
-    cout << RGB.x << ' ' << RGB.y << ' ' << RGB.z << '\n';
+    return RGB;
 }
 
 int main(){
-    //Coisas acontecerão aqui
+
     double x, y, z, foo, height, length, distance;
     vector<Sphere> Spheres;
     vector<Plane> Planes;
@@ -152,9 +170,6 @@ int main(){
 
             cin >> x >> y >> z;
             Vector light_intensity = Vector (x, y, z);
-
-            // cin >> x >> y >> z;
-            // Vector ambient_colour = Vector (x, y, z);
 
             Light light (light_origin, light_intensity);
             Lights.push_back(light);
@@ -271,7 +286,6 @@ int main(){
         }
     }
 
-    //Unindo todos os objetos em um vector só usando armazenamento polimórfico
     vector<Object*> Objects;
     for(Sphere& sphere : Spheres){Objects.push_back(&sphere);}
     for(Plane& plane : Planes){Objects.push_back(&plane);}
@@ -282,7 +296,10 @@ int main(){
     for(double y = 0; y < height; y++){
         for(double x = 0; x < length; x++){
             ray raio = ray(cam.origin, sup_esquerdo + (passo_x*x) - (passo_y*y));
-            Render(cam, Objects, raio, Lights);
+            Vector RGB = Render(cam, Objects, raio, Lights, 0, 0);
+            RGB = RGB*255;
+            RGB = Vector(min(255, int(RGB.x)), min(255, int(RGB.y)), min(255, int(RGB.z)));
+            cout << RGB.x << " " << RGB.y << " " << RGB.z << endl;
         }
     }
 
