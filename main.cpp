@@ -102,7 +102,7 @@ Vector Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, c
 
     for(const auto& object : Objects){
         dist = object->intersect(raio);
-        if(dist > 0.2){distances.push_back(make_pair(dist, object));} //Afeta a "granulação", achar um valor legal para por
+        if(dist > 0.02){distances.push_back(make_pair(dist, object));} //Afeta a "granulação", achar um valor legal para por
     }
 
     if(distances.empty()){return cam.cor/255;}
