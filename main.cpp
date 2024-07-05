@@ -25,33 +25,26 @@ bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Obje
     return dist1.first < dist2.first;
 }
 
-double dot_refr(const Vector& a, const Vector& b) {
-    return a.x * b.x + a.y * b.y + a.z * b.z;
-}
 
-Vector minus_vector(const Vector& v) {
-    return Vector(v.x * (-1), v.y * v.x * (-1), v.z * v.x * (-1));
-}
-
-Vector refracted (const Vector& view, const Vector& normal, double ior){
-    double cosi = dot_refr(normal, view);
+Vector refracted (Vector& view, Vector& normal, double ior){
+    double cosi = normal.dot(view.x, view.y, view.z);
     Vector n2 = normal;
     double ior2 = ior;
     if (cosi < 0.0){
-        n2=minus_vector(n2); //n2 = -n2;
+        n2= n2*(-1);
         ior2 = 1.0/ior2;
         cosi *= -1;
     }
     double delta = 1.0 - (1.0 - cosi * cosi) / (ior2 * ior2);
     if (delta < 0.0) {
-        throw -1;
+        return Vector(0, 0, 0);
     }
     return view / (-ior2) - n2 * (sqrt(delta) - cosi / ior2);
 }
 
 Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights, vector<Object*> Recursao, int recursao_reflexao, int recursao_transmissao){
 
-    double ka, ks, kd, kr, kt, nrugo, espec, difuse, n_transm, ior_glass;
+    double ka, ks, kd, kr, kt, nrugo, espec, difuse, n_transm;
     Point Colisao;
     Vector ambient_light, Od, normal, IL, L, R, V, Difusa, Especular, I, Refletido, Transmitido;
 
@@ -65,8 +58,6 @@ Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights,
     nrugo = Objectt->nrugo;
 
     Od = Objectt->color/255;
-
-    ior_glass = 1.5;
 
     normal = Objectt->returnNormal(raio, t);
     normal.make_unit_vector();
@@ -96,34 +87,19 @@ Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights,
             I = I + IL*ks*pow(espec, nrugo);
         }
 
-    }
-
-    /*
-    Um duvida que eu tenho sobre essa parte, a gente usa o V da luz para calcular a direção da reflexão
-    Mas e se não tiver nenhuma luz? Nada vai ser refletido? Porque teoricamente não iriamos ter V
-    E se tivermos mais de uma luz? Teriamos que salvar cada V e fazer as 3 recursões para cada um deles?
-
-    */
-    
-    if(recursao_reflexao < 3){
-        Refletido = (normal*2)*(V.dot(normal.x, normal.y, normal.z)) - V; 
-        I = I + Render(cam, Recursao, ray(Colisao, Refletido), Lights, recursao_reflexao + 1, recursao_transmissao)*kr;
-    }
-
-   if (recursao_transmissao < 3) {
-        double n1 = 1.0;  // Índice de refração do ar
-        double n2 = Objectt->ior;  // Índice de refração do objeto
-        double n = n1 / n2;
-        double cosI = -normal.dot(V.x, V.y, V.z);
-        double sinT2 = n * n * (1.0 - cosI * cosI);
-        if (sinT2 <= 1.0) {  // Total Internal Reflection
-            double cosT = sqrt(1.0 - sinT2);
-            //Transmitido = V * n + normal * (n * cosI - cosT);
-            Transmitido=refracted (V, normal, ior_glass);
-            I = I + Render(cam, Recursao, ray(Colisao, Transmitido), Lights, recursao_reflexao, recursao_transmissao + 1) * kt;
+        if(recursao_reflexao < 3){
+            Refletido = (normal*2)*(V.dot(normal.x, normal.y, normal.z)) - V; 
+            I = I + Render(cam, Recursao, ray(Colisao, Refletido), Lights, recursao_reflexao + 1, recursao_transmissao)*kr;
         }
-   }
-    
+
+        if (recursao_transmissao < 3) {
+            Transmitido = refracted (V, normal, Objectt->ior);
+            I = I + Render(cam, Recursao, ray(Colisao, Transmitido), Lights, recursao_reflexao, recursao_transmissao + 1)*kt;
+        }
+
+    }
+
+
     return I;
 }
 
@@ -222,7 +198,7 @@ int main(){
             double kd, ks, ka, kr, kt, nrugo;
             cin >> kd >> ks >> ka >> kr >> kt >> nrugo;
 
-            double ior = 1.0;
+            double ior = 1.5;
             
             Sphere sphere = Sphere(center, radius, sp_color, kd, ks, ka, kr, kt, nrugo, ior);
             Spheres.push_back(sphere);
