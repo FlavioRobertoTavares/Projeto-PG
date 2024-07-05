@@ -25,18 +25,26 @@ bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Obje
     return dist1.first < dist2.first;
 }
 
+double dot_refr(const Vector& a, const Vector& b) {
+    return a.x * b.x + a.y * b.y + a.z * b.z;
+}
+
+Vector minus_vector(const Vector& v) {
+    return Vector(v.x * (-1), v.y * v.x * (-1), v.z * v.x * (-1));
+}
+
 Vector refracted (const Vector& view, const Vector& normal, double ior){
-    double cosi = dot(normal, view);
+    double cosi = dot_refr(normal, view);
     Vector n2 = normal;
     double ior2 = ior;
     if (cosi < 0.0){
-        n2 = -n2;
+        n2=minus_vector(n2); //n2 = -n2;
         ior2 = 1.0/ior2;
         cosi *= -1;
     }
     double delta = 1.0 - (1.0 - cosi * cosi) / (ior2 * ior2);
     if (delta < 0.0) {
-        //throw -1;
+        throw -1;
     }
     return view / (-ior2) - n2 * (sqrt(delta) - cosi / ior2);
 }
