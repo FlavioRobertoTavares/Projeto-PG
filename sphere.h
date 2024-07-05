@@ -9,56 +9,45 @@
 using namespace std;
 
 class Sphere: public Object {
-    public:
-        Sphere(Point center, double radius, Vector color, double kd, double ks, double ka, double kr, double kt, double nrugo) 
-        : center(center), radius(radius), Object(color, kd, ks, ka, kr, kt, nrugo) {}
+public:
+    Sphere(Point center, double radius, Vector color, double kd, double ks, double ka, double kr, double kt, double nrugo, double ior) 
+        : center(center), radius(radius), Object(color, kd, ks, ka, kr, kt, nrugo, ior) {}
 
-        double intersect(const ray &r) override {
-            double distance;
-            Vector oc = center - r.origin();
-            double A = r.direction().dot(r.direction().x, r.direction().y, r.direction().z);
-            double B = -2*r.direction().dot(oc.x, oc.y, oc.z);
-            double C = oc.dot(oc.x, oc.y, oc.z) - pow(radius, 2);
+    double intersect(const ray &r) override {
+        double distance;
+        Vector oc = center - r.origin();
+        double A = r.direction().dot(r.direction().x, r.direction().y, r.direction().z);
+        double B = -2*r.direction().dot(oc.x, oc.y, oc.z);
+        double C = oc.dot(oc.x, oc.y, oc.z) - pow(radius, 2);
 
-            double Delta = pow(B, 2) - 4*A*C;
+        double Delta = pow(B, 2) - 4*A*C;
 
-            if(Delta >= 0){
-                double distance1 = (-B+sqrt(Delta)) /  2*A;
-                double distance2 = (-B-sqrt(Delta)) /  2*A;
-                
-                //retorna a menor e se ela não for menor que 0
-
-                if(distance1 < 0){
-                    distance = distance2;
-                
-                }else if(distance2 < 0){
-                    distance = distance1;
-
-                }else{
-                    distance = min(distance1, distance2);
-                }
-                
-                
+        if(Delta >= 0){
+            double distance1 = (-B+sqrt(Delta)) /  2*A;
+            double distance2 = (-B-sqrt(Delta)) /  2*A;
+            
+            if(distance1 < 0){
+                distance = distance2;
+            }else if(distance2 < 0){
+                distance = distance1;
             }else{
-                distance = 0; 
+                distance = min(distance1, distance2);
             }
-
-            return max(distance, 0.0);
-
+        }else{
+            distance = 0; 
         }
 
-        //calculada como o vetor unitário que aponta do centro da esfera para o ponto de interseção
-        Vector returnNormal(const ray& r, double t) override {
-            Point intersection_point = r.at(t);
-            Vector outward_normal = intersection_point - center;
-            //if(r.direction().dot(outward_normal.x, outward_normal.y, outward_normal.z) > 0){outward_normal = outward_normal*(-1);}
+        return max(distance, 0.0);
+    }
 
-            //ok?
-            return outward_normal;
-        }
+    Vector returnNormal(const ray& r, double t) override {
+        Point intersection_point = r.at(t);
+        Vector outward_normal = intersection_point - center;
+        return outward_normal;
+    }
 
-        Point center;
-        double radius;
+    Point center;
+    double radius;
 };
 
 #endif

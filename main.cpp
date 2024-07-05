@@ -78,18 +78,24 @@ Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights,
     E se tivermos mais de uma luz? Teriamos que salvar cada V e fazer as 3 recursões para cada um deles?
 
     */
-    Refletido = (normal*2)*(V.dot(normal.x, normal.y, normal.z)) - V; 
+    
     if(recursao_reflexao < 3){
+        Refletido = (normal*2)*(V.dot(normal.x, normal.y, normal.z)) - V; 
         I = I + Render(cam, Recursao, ray(Colisao, Refletido), Lights, recursao_reflexao + 1, recursao_transmissao)*kr;
     }
 
-    /* Descomentar para terminar a refração/transmissão
-    n_transm = 0; //Calcular o n, não entendi direito como
-    Transmitido = Vector(0, 0, 0); //Calcular o T, não entendi direto
-    if(recursao_transmissao < 3){
-        I = I + Render(cam, Recursao, ray(Colisao, Refletido), Lights, recursao_reflexao, recursao_transmissao + 1)*kt;
-    }
-    */
+   if (recursao_transmissao < 3) {
+        double n1 = 1.0;  // Índice de refração do ar
+        double n2 = Objectt->ior;  // Índice de refração do objeto
+        double n = n1 / n2;
+        double cosI = -normal.dot(V.x, V.y, V.z);
+        double sinT2 = n * n * (1.0 - cosI * cosI);
+        if (sinT2 <= 1.0) {  // Total Internal Reflection
+            double cosT = sqrt(1.0 - sinT2);
+            Transmitido = V * n + normal * (n * cosI - cosT);
+            I = I + Render(cam, Recursao, ray(Colisao, Transmitido), Lights, recursao_reflexao, recursao_transmissao + 1) * kt;
+        }
+   }
     
     return I;
 }
@@ -118,6 +124,7 @@ Vector Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, c
     
     return RGB;
 }
+
 
 int main(){
 
@@ -187,8 +194,10 @@ int main(){
 
             double kd, ks, ka, kr, kt, nrugo;
             cin >> kd >> ks >> ka >> kr >> kt >> nrugo;
+
+            double ior = 1.0;
             
-            Sphere sphere = Sphere(center, radius, sp_color, kd, ks, ka, kr, kt, nrugo);
+            Sphere sphere = Sphere(center, radius, sp_color, kd, ks, ka, kr, kt, nrugo, ior);
             Spheres.push_back(sphere);
         
         }else if(input == "plane"){
@@ -204,8 +213,10 @@ int main(){
 
             double kd, ks, ka, kr, kt, nrugo;
             cin >> kd >> ks >> ka >> kr >> kt >> nrugo;
+
+            double ior = 1.0;
             
-            Plane plane = Plane(plane_origin, plane_normal, plane_cor, kd, ks, ka, kr, kt, nrugo);
+            Plane plane = Plane(plane_origin, plane_normal, plane_cor, kd, ks, ka, kr, kt, nrugo, ior);
             Planes.push_back(plane);
         }
         else if(input == "mesh"){
@@ -230,7 +241,9 @@ int main(){
             double kd, ks, ka, kr, kt, nrugo;
             cin >> kd >> ks >> ka >> kr >> kt >> nrugo;
 
-            Mesh mesh = Mesh(nTriangles, nVertex, Vertices, triplas, mesh_color, kd, ks, ka, kr, kt, nrugo);
+            double ior = 1.0;
+
+            Mesh mesh = Mesh(nTriangles, nVertex, Vertices, triplas, mesh_color, kd, ks, ka, kr, kt, nrugo, ior);
             triplas.clear();
             Vertices.clear();
 
@@ -262,7 +275,7 @@ int main(){
                 Point center = matrix.transform_point(Spheres[index].center);
                 Spheres[index] = Sphere(center, Spheres[index].radius, Spheres[index].color,
                                 Spheres[index].kd, Spheres[index].ks, Spheres[index].ka, 
-                                Spheres[index].kr, Spheres[index].kt, Spheres[index].nrugo);
+                                Spheres[index].kr, Spheres[index].kt, Spheres[index].nrugo, Spheres[index].ior);
 
             
             }else if(object == "plane"){
@@ -270,7 +283,7 @@ int main(){
                 Vector normal = matrix.transform_vector(Planes[index].normal);
                 Planes[index] = Plane(origin, normal, Planes[index].color,
                           Planes[index].kd, Planes[index].ks, Planes[index].ka, 
-                          Planes[index].kr, Planes[index].kt, Planes[index].nrugo);
+                          Planes[index].kr, Planes[index].kt, Planes[index].nrugo, Planes[index].ior);
 
             }else if(object == "mesh"){
                 vector<Point> newVertices;
@@ -280,7 +293,7 @@ int main(){
                 }
                 Meshs[index] = Mesh(Meshs[index].nTriangles, Meshs[index].nVertex, newVertices, Meshs[index].triplas, 
                                     Meshs[index].color, Meshs[index].kd, Meshs[index].ks, Meshs[index].ka, 
-                                    Meshs[index].kr, Meshs[index].kt, Meshs[index].nrugo);
+                                    Meshs[index].kr, Meshs[index].kt, Meshs[index].nrugo, Meshs[index].ior);
                 newVertices.clear();
             }
         }

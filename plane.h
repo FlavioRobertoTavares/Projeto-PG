@@ -13,8 +13,8 @@ public:
     Point point;
     Vector normal;
 
-    Plane(const Point& point, const Vector& normal, const Vector& color, double kd, double ks, double ka, double kr, double kt, double nrugo) 
-    : point(point), normal(normal), Object(color, kd, ks, ka, kr, kt, nrugo) {
+    Plane(const Point& point, const Vector& normal, const Vector& color, double kd, double ks, double ka, double kr, double kt, double nrugo, double ior) 
+    : point(point), normal(normal), Object(color, kd, ks, ka, kr, kt, nrugo, ior) {
         a = normal.x;
         b = normal.y;
         c = normal.z;
