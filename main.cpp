@@ -25,9 +25,25 @@ bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Obje
     return dist1.first < dist2.first;
 }
 
+Vector refracted (const Vector& view, const Vector& normal, double ior){
+    double cosi = dot(normal, view);
+    Vector n2 = normal;
+    double ior2 = ior;
+    if (cosi < 0.0){
+        n2 = -n2;
+        ior2 = 1.0/ior2;
+        cosi *= -1;
+    }
+    double delta = 1.0 - (1.0 - cosi * cosi) / (ior2 * ior2);
+    if (delta < 0.0) {
+        //throw -1;
+    }
+    return view / (-ior2) - n2 * (sqrt(delta) - cosi / ior2);
+}
+
 Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights, vector<Object*> Recursao, int recursao_reflexao, int recursao_transmissao){
 
-    double ka, ks, kd, kr, kt, nrugo, espec, difuse, n_transm;
+    double ka, ks, kd, kr, kt, nrugo, espec, difuse, n_transm, ior_glass;
     Point Colisao;
     Vector ambient_light, Od, normal, IL, L, R, V, Difusa, Especular, I, Refletido, Transmitido;
 
@@ -41,6 +57,8 @@ Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights,
     nrugo = Objectt->nrugo;
 
     Od = Objectt->color/255;
+
+    ior_glass = 1.5;
 
     normal = Objectt->returnNormal(raio, t);
     normal.make_unit_vector();
@@ -92,7 +110,8 @@ Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights,
         double sinT2 = n * n * (1.0 - cosI * cosI);
         if (sinT2 <= 1.0) {  // Total Internal Reflection
             double cosT = sqrt(1.0 - sinT2);
-            Transmitido = V * n + normal * (n * cosI - cosT);
+            //Transmitido = V * n + normal * (n * cosI - cosT);
+            Transmitido=refracted (V, normal, ior_glass);
             I = I + Render(cam, Recursao, ray(Colisao, Transmitido), Lights, recursao_reflexao, recursao_transmissao + 1) * kt;
         }
    }
