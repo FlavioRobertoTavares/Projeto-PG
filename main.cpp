@@ -25,6 +25,7 @@ bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Obje
     if(dist1.first == 0){return false;}
     if(dist2.first == 0){return true;}
     return dist1.first < dist2.first;
+
 }
 
 
@@ -46,6 +47,7 @@ Vector refracted (Vector& view, Vector& normal, double ior){
         throw -1;
     }
     return view / (-ior2) - n2 * (sqrt(delta) - cosi / ior2);
+
 }
 
 Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights, vector<Object*> Recursao, int recursao){
@@ -68,7 +70,8 @@ Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights,
     normal = Objectt->returnNormal(raio, t);
     normal.make_unit_vector();
 
-    I = ambient_light*ka*Od;
+    I = ambient_light*ka*Od;    
+
 
     for(Light& light: Lights){
         IL = light.intensity/255;
@@ -97,6 +100,7 @@ Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights,
             Refletido = (normal*2)*(V.dot(normal.x, normal.y, normal.z)) - V; 
 
             try{
+
                 if (kt > 0) {
                     Transmitido = refracted (V, normal, Objectt->ior);
                     I = I + Render(cam, Recursao, ray(Colisao, Transmitido), Lights, recursao+1)*kt;

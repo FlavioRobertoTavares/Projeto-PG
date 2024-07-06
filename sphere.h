@@ -40,7 +40,7 @@ public:
 
             return distance;
         }
-        return -1;
+        return Not_intersect;
     }
 
     Vector returnNormal(const ray& r, double t) override {
