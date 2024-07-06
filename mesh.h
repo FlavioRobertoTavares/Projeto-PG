@@ -11,8 +11,9 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
-
 using namespace std;
+#define Not_intersect -1
+#define Discard 1e-6
 
 class Triangle{
     public:
@@ -56,8 +57,8 @@ class Triangle{
             bool hit = (alpha >= 0) && (beta >= 0) && (gama >= 0) && (fabs(alpha + beta + gama - 1) < 1e-6);
             //bool hit = (alpha >= 0) && (beta >= 0) && (gama >= 0) && ((alpha + beta + gama) <= 1);
 
-            if(hit){return distance;}
-            return 0;
+            if(hit && distance > Discard){return distance;}
+            return Not_intersect;
 
         }
 

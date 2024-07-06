@@ -6,6 +6,8 @@
 #include "objects.h"
 #include "ray.h"
 using namespace std;
+#define Not_intersect -1
+#define Discard 1e-6
 
 
 class Plane: public Object {
@@ -25,13 +27,13 @@ public:
 
     double intersect(const ray &r) override {
         auto condition = normal.dot(r.direction().x, r.direction().y, r.direction().z);
-        if(abs(condition) < 1e-6){return -1;}
+        if(abs(condition) < Discard){return Not_intersect;}
         
         double distance = (normal.dot(point.x, point.y, point.z) - normal.dot(r.origin().x, r.origin().y, r.origin().z)) / normal.dot(r.direction().x, r.direction().y, r.direction().z);
-        if(distance > 1e-6){
+        if(distance > Discard){
             return distance;
         }
-        return -1;
+        return Not_intersect;
     }
 
     // retorna a normal que definida na inicialização
