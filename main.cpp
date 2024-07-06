@@ -14,9 +14,11 @@
 #include "matrix.h"
 #include "light.h"
 using namespace std;
+#define Not_intersect -1
+#define Discard 1e-6
 
-Vector Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, const vector<Light> &Lights, int recursao_reflexao, int recursao_transmissao);
-Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights, vector<Object*> Recursao, int recursao_reflexao, int recursao_transmissao);
+Vector Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, const vector<Light> &Lights, int recursao);
+Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights, vector<Object*> Recursao, int recursao);
 
 //Organiza a lista do menor pro maior, mas se for 0, ele coloca no final da lista
 bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Object*> &dist2){
@@ -25,6 +27,10 @@ bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Obje
     return dist1.first < dist2.first;
 }
 
+
+double dt (Point a, Point b) {
+    return sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2) + pow(a.z - b.z, 2));
+}
 
 Vector refracted (Vector& view, Vector& normal, double ior){
     double cosi = normal.dot(view.x, view.y, view.z);
@@ -37,12 +43,12 @@ Vector refracted (Vector& view, Vector& normal, double ior){
     }
     double delta = 1.0 - (1.0 - cosi * cosi) / (ior2 * ior2);
     if (delta < 0.0) {
-        return Vector(0, 0, 0);
+        throw -1;
     }
     return view / (-ior2) - n2 * (sqrt(delta) - cosi / ior2);
 }
 
-Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights, vector<Object*> Recursao, int recursao_reflexao, int recursao_transmissao){
+Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights, vector<Object*> Recursao, int recursao){
 
     double ka, ks, kd, kr, kt, nrugo, espec, difuse, n_transm;
     Point Colisao;
@@ -87,14 +93,22 @@ Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights,
             I = I + IL*ks*pow(espec, nrugo);
         }
 
-        if(recursao_reflexao < 3){
+        if(recursao < 3 && dt(raio.origin(), raio.at(t)) > Discard){
             Refletido = (normal*2)*(V.dot(normal.x, normal.y, normal.z)) - V; 
-            I = I + Render(cam, Recursao, ray(Colisao, Refletido), Lights, recursao_reflexao + 1, recursao_transmissao)*kr;
-        }
 
-        if (recursao_transmissao < 3) {
-            Transmitido = refracted (V, normal, Objectt->ior);
-            I = I + Render(cam, Recursao, ray(Colisao, Transmitido), Lights, recursao_reflexao, recursao_transmissao + 1)*kt;
+            try{
+                if (kt > 0) {
+                    Transmitido = refracted (V, normal, Objectt->ior);
+                    I = I + Render(cam, Recursao, ray(Colisao, Transmitido), Lights, recursao+1)*kt;
+                }
+
+                if(kr > 0){  
+                    I = I + Render(cam, Recursao, ray(Colisao, Refletido), Lights, recursao+1)*kr;
+                }
+
+            }catch (int e){
+                I = I + Render(cam, Recursao, ray(Colisao, Refletido), Lights, recursao+1);
+            }
         }
 
     }
@@ -103,7 +117,7 @@ Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights,
     return I;
 }
 
-Vector Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, const vector<Light> &Lights, int recursao_reflexao, int recursao_transmissao){
+Vector Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, const vector<Light> &Lights, int recursao){
     vector<pair<double, Object*>> distances;
     double dist;
     Vector RGB;
@@ -111,19 +125,14 @@ Vector Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, c
 
     for(const auto& object : Objects){
         dist = object->intersect(raio);
-        if(dist > 0.02){distances.push_back(make_pair(dist, object));} //Afeta a "granulação", achar um valor legal para por
+        if(dist != Not_intersect){distances.push_back(make_pair(dist, object));} //Afeta a "granulação"
     }
 
     if(distances.empty()){return cam.cor/255;}
     sort(distances.begin(), distances.end(), return_min_dist);
     dist = distances[0].first;
     Object = distances[0].second;
-    
-    if(dist == 0){ //Cuidado, pode quebrar Reflexão!!!!!!!!!! Tem que considerar a distância para a câmera???
-        RGB = cam.cor/255;
-    }else{
-        RGB = Phong(cam, Object, raio, dist, Lights, Objects, recursao_reflexao, recursao_transmissao);
-    }
+    RGB = Phong(cam, Object, raio, dist, Lights, Objects, recursao);
     
     return RGB;
 }
@@ -198,7 +207,7 @@ int main(){
             double kd, ks, ka, kr, kt, nrugo;
             cin >> kd >> ks >> ka >> kr >> kt >> nrugo;
 
-            double ior = 1.5;
+            double ior = 1;
             
             Sphere sphere = Sphere(center, radius, sp_color, kd, ks, ka, kr, kt, nrugo, ior);
             Spheres.push_back(sphere);
@@ -217,7 +226,7 @@ int main(){
             double kd, ks, ka, kr, kt, nrugo;
             cin >> kd >> ks >> ka >> kr >> kt >> nrugo;
 
-            double ior = 1.0;
+            double ior = 1;
             
             Plane plane = Plane(plane_origin, plane_normal, plane_cor, kd, ks, ka, kr, kt, nrugo, ior);
             Planes.push_back(plane);
@@ -312,7 +321,7 @@ int main(){
     for(double y = 0; y < height; y++){
         for(double x = 0; x < length; x++){
             ray raio = ray(cam.origin, sup_esquerdo + (passo_x*x) - (passo_y*y));
-            Vector RGB = Render(cam, Objects, raio, Lights, 0, 0);
+            Vector RGB = Render(cam, Objects, raio, Lights, 0);
             RGB = RGB*255;
             RGB = Vector(min(255, int(RGB.x)), min(255, int(RGB.y)), min(255, int(RGB.z)));
             cout << RGB.x << " " << RGB.y << " " << RGB.z << endl;

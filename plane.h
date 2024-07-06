@@ -7,6 +7,7 @@
 #include "ray.h"
 using namespace std;
 
+
 class Plane: public Object {
 public:
     double a, b, c, d; // Coeficientes do plano
@@ -23,18 +24,14 @@ public:
     }
 
     double intersect(const ray &r) override {
+        auto condition = normal.dot(r.direction().x, r.direction().y, r.direction().z);
+        if(abs(condition) < 1e-6){return -1;}
         
-         //Agora só retorna se não for menor que 0
-        if(normal.dot(r.direction().x, r.direction().y, r.direction().z) != 0){
-            double distance = (normal.dot(point.x, point.y, point.z) - normal.dot(r.origin().x, r.origin().y, r.origin().z)) / normal.dot(r.direction().x, r.direction().y, r.direction().z);
-            if(distance < 0){
-                return 0;
-            }
+        double distance = (normal.dot(point.x, point.y, point.z) - normal.dot(r.origin().x, r.origin().y, r.origin().z)) / normal.dot(r.direction().x, r.direction().y, r.direction().z);
+        if(distance > 1e-6){
             return distance;
-
         }
-        return 0;
-
+        return -1;
     }
 
     // retorna a normal que definida na inicialização

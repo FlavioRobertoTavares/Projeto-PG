@@ -7,6 +7,8 @@
 #include "objects.h"
 #include "ray.h"
 using namespace std;
+#define Not_intersect -1
+#define Discard 1e-6
 
 class Sphere: public Object {
 public:
@@ -25,19 +27,20 @@ public:
         if(Delta >= 0){
             double distance1 = (-B+sqrt(Delta)) /  2*A;
             double distance2 = (-B-sqrt(Delta)) /  2*A;
-            
-            if(distance1 < 0){
-                distance = distance2;
-            }else if(distance2 < 0){
-                distance = distance1;
-            }else{
-                distance = min(distance1, distance2);
-            }
-        }else{
-            distance = 0; 
-        }
+            distance = distance1;
 
-        return max(distance, 0.0);
+            if(distance1 < Discard){
+                if(distance2 < Discard){
+                    return Not_intersect;
+                }
+                distance = distance2;
+            }
+
+            if(distance1 > Discard && distance2 > Discard){distance = min(distance1, distance2);}
+
+            return distance;
+        }
+        return -1;
     }
 
     Vector returnNormal(const ray& r, double t) override {
