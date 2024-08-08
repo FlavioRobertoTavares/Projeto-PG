@@ -132,10 +132,11 @@ Vector Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, c
     double dist;
     Vector RGB;
     Object* Object;
-
+    
     for(const auto& object : Objects){
         dist = object->intersect(raio);
         if(dist != Not_intersect){distances.push_back(make_pair(dist, object));} //Afeta a "granulação"
+
     }
 
     if(distances.empty()){return cam.cor/255;}
@@ -222,6 +223,7 @@ int main(){
             double ior = 1;
 
             cin >> have_texture >> name_texture;
+            if(!have_texture){name_texture = "none";}
             
             Sphere sphere = Sphere(center, radius, sp_color, kd, ks, ka, kr, kt, nrugo, ior, have_texture, name_texture);
             Spheres.push_back(sphere);

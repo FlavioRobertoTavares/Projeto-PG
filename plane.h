@@ -53,6 +53,10 @@ public:
     bool contains(const Point& point) const {
         return (a * point.x + b * point.y + c * point.z + d) == 0;
     }
+
+    Vector getTextureColor(const ray& r, double t) override {
+        return Vector(0, 0, 0);
+    }
 };
 
 #endif

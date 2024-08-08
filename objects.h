@@ -12,7 +12,7 @@ class Object {
 public:
     Vector color;
     double kd, ks, ka, kr, kt, nrugo, ior;
-    bool have_texture;
+    bool have_texture = true;
     string name;
     Texture* texture; 
 
@@ -23,11 +23,7 @@ public:
         }
     }
 
-    virtual ~Object() {
-        if (texture) {
-            delete texture;
-        }
-    }
+    virtual ~Object() = default;
 
     virtual double intersect(const ray &r) = 0;
     virtual Vector returnNormal(const ray& r, double t) = 0;

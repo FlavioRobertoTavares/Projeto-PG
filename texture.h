@@ -18,13 +18,12 @@ public:
     unsigned char* image = nullptr;
 
     Texture(const string& name) : name(name) {
-        path = "textures/" + name + ".jpg";
-        image = stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb);
-        if (!image) {cerr << "Não foi possivel achar o arquivo: " << path << endl;}
+        if(name != "none" && name != ""){
+            path = "textures/" + name + ".jpg";
+            image = stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb);
+            if (!image) {cerr << "Não foi possivel achar o arquivo: " << path << endl;}
+        }
     }
-    ~Texture() {if (image) {stbi_image_free(image);}}
-    
-
     
 };
 

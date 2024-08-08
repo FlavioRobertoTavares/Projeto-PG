@@ -117,5 +117,9 @@ class Mesh: public Object{
             return Vector(0, 0, 0); // Return zero vector if no intersection found
         }
 
+        Vector getTextureColor(const ray& r, double t) override {
+            return Vector(0, 0, 0);
+        }
+
 };
 #endif
