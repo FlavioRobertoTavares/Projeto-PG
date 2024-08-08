@@ -65,7 +65,13 @@ Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights,
     kt = Objectt->kt;
     nrugo = Objectt->nrugo;
 
-    Od = Objectt->color/255;
+    if(Objectt->have_texture){
+        Od = Objectt->getTextureColor(raio, t); //Já tá normalizado
+    
+    }else{
+        Od = Objectt->color/255;
+
+    }
 
     normal = Objectt->returnNormal(raio, t);
     normal.make_unit_vector();
