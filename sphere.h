@@ -12,8 +12,8 @@ using namespace std;
 
 class Sphere: public Object {
 public:
-    Sphere(Point center, double radius, Vector color, double kd, double ks, double ka, double kr, double kt, double nrugo, double ior) 
-        : center(center), radius(radius), Object(color, kd, ks, ka, kr, kt, nrugo, ior) {}
+    Sphere(Point center, double radius, Vector color, double kd, double ks, double ka, double kr, double kt, double nrugo, double ior, bool have_texture, string name) 
+        : center(center), radius(radius), Object(color, kd, ks, ka, kr, kt, nrugo, ior, have_texture, name) {}
 
     double intersect(const ray &r) override {
         double distance;

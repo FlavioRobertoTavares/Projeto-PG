@@ -3,6 +3,7 @@
 
 #include <math.h>
 #include <cmath>
+#include <string>
 #include "vector.h"
 #include "point.h"
 #include "ray.h"
@@ -40,7 +41,7 @@ class Triangle{
 
         double intersect(const ray& r){
             Vector normal = (B - A) % (C - A);
-            Plane plane = Plane(A, normal, Vector(0, 0, 0), 0, 0, 0, 0, 0, 0, 0); // Valores dummy para kd, ks, etc.
+            Plane plane = Plane(A, normal, Vector(0, 0, 0), 0, 0, 0, 0, 0, 0, 0, false, "none"); // Valores dummy para kd, ks, etc.
             double distance = plane.intersect(r);
             if(distance == 0){return 0;}
             Point P = r.at(distance);
@@ -75,8 +76,8 @@ class Mesh: public Object{
         vector <Triangle> Triangles;
 
 
-        Mesh(int nTriangles, int nVertex, vector<Point> Vertices, vector<vector<int>> triplas, Vector color, double kd, double ks, double ka, double kr, double kt, double nrugo, double ior)
-        : nTriangles(nTriangles), nVertex(nVertex), Vertices(Vertices), triplas(triplas), Object(color, kd, ks, ka, kr, kt, nrugo, ior) {
+        Mesh(int nTriangles, int nVertex, vector<Point> Vertices, vector<vector<int>> triplas, Vector color, double kd, double ks, double ka, double kr, double kt, double nrugo, double ior, bool have_texture, string name)
+        : nTriangles(nTriangles), nVertex(nVertex), Vertices(Vertices), triplas(triplas), Object(color, kd, ks, ka, kr, kt, nrugo, ior, have_texture, name) {
             for(int i=0; i<nTriangles; i++){
                 Point A = Vertices[triplas[i][0]];
                 Point B = Vertices[triplas[i][1]];

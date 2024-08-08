@@ -145,6 +145,8 @@ Vector Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, c
 int main(){
 
     double x, y, z, foo, height, length, distance;
+    bool have_texture;
+    string name_texture;
     vector<Sphere> Spheres;
     vector<Plane> Planes;
     vector<Mesh> Meshs;
@@ -212,8 +214,10 @@ int main(){
             cin >> kd >> ks >> ka >> kr >> kt >> nrugo;
 
             double ior = 1;
+
+            cin >> have_texture >> name_texture;
             
-            Sphere sphere = Sphere(center, radius, sp_color, kd, ks, ka, kr, kt, nrugo, ior);
+            Sphere sphere = Sphere(center, radius, sp_color, kd, ks, ka, kr, kt, nrugo, ior, have_texture, name_texture);
             Spheres.push_back(sphere);
         
         }else if(input == "plane"){
@@ -232,7 +236,7 @@ int main(){
 
             double ior = 1;
             
-            Plane plane = Plane(plane_origin, plane_normal, plane_cor, kd, ks, ka, kr, kt, nrugo, ior);
+            Plane plane = Plane(plane_origin, plane_normal, plane_cor, kd, ks, ka, kr, kt, nrugo, ior, false, "none");
             Planes.push_back(plane);
         }
         else if(input == "mesh"){
@@ -259,7 +263,7 @@ int main(){
 
             double ior = 1.0;
 
-            Mesh mesh = Mesh(nTriangles, nVertex, Vertices, triplas, mesh_color, kd, ks, ka, kr, kt, nrugo, ior);
+            Mesh mesh = Mesh(nTriangles, nVertex, Vertices, triplas, mesh_color, kd, ks, ka, kr, kt, nrugo, ior, false, "none");
             triplas.clear();
             Vertices.clear();
 
@@ -291,7 +295,7 @@ int main(){
                 Point center = matrix.transform_point(Spheres[index].center);
                 Spheres[index] = Sphere(center, Spheres[index].radius, Spheres[index].color,
                                 Spheres[index].kd, Spheres[index].ks, Spheres[index].ka, 
-                                Spheres[index].kr, Spheres[index].kt, Spheres[index].nrugo, Spheres[index].ior);
+                                Spheres[index].kr, Spheres[index].kt, Spheres[index].nrugo, Spheres[index].ior, Spheres[index].have_texture, Spheres[index].name);
 
             
             }else if(object == "plane"){
@@ -299,7 +303,7 @@ int main(){
                 Vector normal = matrix.transform_vector(Planes[index].normal);
                 Planes[index] = Plane(origin, normal, Planes[index].color,
                           Planes[index].kd, Planes[index].ks, Planes[index].ka, 
-                          Planes[index].kr, Planes[index].kt, Planes[index].nrugo, Planes[index].ior);
+                          Planes[index].kr, Planes[index].kt, Planes[index].nrugo, Planes[index].ior, Planes[index].have_texture, Planes[index].name);
 
             }else if(object == "mesh"){
                 vector<Point> newVertices;
@@ -309,7 +313,7 @@ int main(){
                 }
                 Meshs[index] = Mesh(Meshs[index].nTriangles, Meshs[index].nVertex, newVertices, Meshs[index].triplas, 
                                     Meshs[index].color, Meshs[index].kd, Meshs[index].ks, Meshs[index].ka, 
-                                    Meshs[index].kr, Meshs[index].kt, Meshs[index].nrugo, Meshs[index].ior);
+                                    Meshs[index].kr, Meshs[index].kt, Meshs[index].nrugo, Meshs[index].ior, Meshs[index].have_texture, Meshs[index].name);
                 newVertices.clear();
             }
         }
