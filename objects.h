@@ -31,6 +31,7 @@ public:
 
     virtual double intersect(const ray &r) = 0;
     virtual Vector returnNormal(const ray& r, double t) = 0;
+    virtual Vector getTextureColor(const ray& r, double t) = 0;
 };
 
 #endif

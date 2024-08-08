@@ -23,6 +23,7 @@ public:
         if (!image) {cerr << "Não foi possivel achar o arquivo: " << path << endl;}
     }
     ~Texture() {if (image) {stbi_image_free(image);}}
+    
 
     
 };

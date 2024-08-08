@@ -49,6 +49,31 @@ public:
         return outward_normal;
     }
 
+    Vector getTextureColor(const ray& r, double t) override {
+        double u, v, erre, g, b;
+        int i, j, index;
+
+        Vector normal = returnNormal(r, t);
+        normal.make_unit_vector();
+        u = 0.5 + atan2(normal.z, normal.x) / (2 * M_PI);
+        v = 0.5 - asin(normal.y) / M_PI;
+
+        i = static_cast<int>(u * texture->width);
+        j = static_cast<int>(v * texture->height);
+
+        i = std::max(0, std::min(i, texture->width - 1));
+        j = std::max(0, std::min(j, texture->height - 1));
+        
+        index = (j * texture->width + i) * 3;
+        
+        //precisa normalizar aqui? Porque eu normalizo no phong já
+        erre = texture->image[index] / 255.0;
+        g = texture->image[index + 1] / 255.0;
+        b = texture->image[index + 2] / 255.0;
+        
+        return Vector(erre, g, b);
+    }
+
     Point center;
     double radius;
 };
