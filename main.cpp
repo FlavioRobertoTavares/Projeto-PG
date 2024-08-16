@@ -13,6 +13,7 @@
 #include "mesh.h"
 #include "matrix.h"
 #include "light.h"
+#include "bezier_surface.h"
 using namespace std;
 #define Not_intersect -1
 #define Discard 1e-6
@@ -149,6 +150,7 @@ int main(){
     vector<Plane> Planes;
     vector<Mesh> Meshs;
     vector<Light> Lights;
+    vector<Bezier> Beziers;
 
     int nTriangles;
     int nVertex;
@@ -266,7 +268,8 @@ int main(){
             Meshs.push_back(mesh);
 
         } else if (input =="bezier"){
-            cin>>nPointsControl; //grid n x n
+            int nPointsControl;
+            cin >> nPointsControl; //grid n x n
             vector<vector<Point>> controlPoints (nPointsControl);
             for(int i = 0; i < nPointsControl; i++){
                 for(int j = 0; j < nPointsControl; j++){
@@ -276,18 +279,18 @@ int main(){
                 }
             }
             cin >> x >> y >> z;
-            Vector mesh_color = Vector(x, y, z);
+            Vector bezier_color = Vector(x, y, z);
 
             double kd, ks, ka, kr, kt, nrugo;
             cin >> kd >> ks >> ka >> kr >> kt >> nrugo;
 
             double ior = 1.0;
 
-            Mesh mesh = Mesh(nTriangles, nVertex, Vertices, triplas, mesh_color, kd, ks, ka, kr, kt, nrugo, ior);
-            triplas.clear();
-            Vertices.clear();
+            Bezier bezier = Bezier(controlPoints, bezier_color, kd, ks, ka, kr, kt, nrugo, ior);
+            //triplas.clear();
+            //Vertices.clear();
 
-            Meshs.push_back(mesh);
+            Beziers.push_back(bezier);
 
         }else if(input == "transf"){
             string object, eixo;
