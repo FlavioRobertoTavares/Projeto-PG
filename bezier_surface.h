@@ -5,9 +5,13 @@
 #include <vector>
 #include "point.h"
 #include "vector.h"
+#include "ray.h"
+#include "plane.h"
 #include "objects.h"
 #include "mesh.h"
 using namespace std;
+#define Not_intersect -1
+#define Discard 1e-6
 
 // Define a simple 3D point structure
 /*struct Point3D {
@@ -17,6 +21,15 @@ using namespace std;
 /*struct Triangle {
     int v1, v2, v3;
 };*/
+
+/*class Triangle {
+public:
+    Triangle(int idx1, int idx2, int idx3)
+        : index1(idx1), index2(idx2), index3(idx3) {}
+
+    int index1, index2, index3;
+};*/
+
 
 class Bezier: public Object {
     
@@ -136,9 +149,9 @@ class Bezier: public Object {
     //com parâmetros s e t -> 1 ponto na superfície
     // Compute a bicubic Bézier surface point
     //Point bicubicBezier(const vector<vector<Point>>& controlPoints, double u, double v) {
-    Point surface_point(double s, double t) {
+    Point surface_point(double u, double v) { //double s,t
+        int n = controlPoints.size(); // n=3 Degree of the polynomial (cubic)
         Point result = Point (0.0, 0.0, 0.0);
-        int n = 3; // Degree of the polynomial (cubic)
         for (int i = 0; i <= n; ++i) {
             for (int j = 0; j <= n; ++j) {
                 double Bu = bernstein(i, n, u);
@@ -202,8 +215,16 @@ class Bezier: public Object {
                 int index4 = (i + 1) * numPointsPerRow + j + 1;
                 
                 // Create two triangles for the current grid cell
-                listTriangles.push_back({ index1, index2, index3 });
-                listTriangles.push_back({ index2, index4, index3 });
+                //listTriangles.push_back({ index1, index2, index3 });
+                //listTriangles.push_back({ index2, index4, index3 });
+                //listTriangles.push_back(Triangle(index1, index2, index3));
+                //listTriangles.push_back(Triangle(index2, index4, index3));
+                // Create two triangles for the current grid cell
+                // Ensure indices are within bounds
+                if (index1 < bezier_points.size() && index2 < bezier_points.size() && index3 < bezier_points.size() && index4 < bezier_points.size()) {
+                    listTriangles.push_back(Triangle(bezier_points[index1], bezier_points[index2], bezier_points[index3]));
+                    listTriangles.push_back(Triangle(bezier_points[index2], bezier_points[index4], bezier_points[index3]));
+                }
             }
         }
         return listTriangles;

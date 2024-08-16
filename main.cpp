@@ -270,13 +270,16 @@ int main(){
         } else if (input =="bezier"){
             int nPointsControl;
             cin >> nPointsControl; //grid n x n
+            vector<Point> controlPointsRow;
             vector<vector<Point>> controlPoints (nPointsControl);
             for(int i = 0; i < nPointsControl; i++){
                 for(int j = 0; j < nPointsControl; j++){
                     cin >> x >> y >> z;
                     Point controlPoint = Point(x, y, z);
-                    controlPoints.push_back(controlPoint);
+                    controlPointsRow.push_back(controlPoint);
                 }
+                controlPoints.push_back(controlPointsRow);
+                controlPointsRow.clear();
             }
             cin >> x >> y >> z;
             Vector bezier_color = Vector(x, y, z);
