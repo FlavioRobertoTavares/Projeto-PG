@@ -265,6 +265,30 @@ int main(){
 
             Meshs.push_back(mesh);
 
+        } else if (input =="bezier"){
+            cin>>nPointsControl; //grid n x n
+            vector<vector<Point>> controlPoints (nPointsControl);
+            for(int i = 0; i < nPointsControl; i++){
+                for(int j = 0; j < nPointsControl; j++){
+                    cin >> x >> y >> z;
+                    Point controlPoint = Point(x, y, z);
+                    controlPoints.push_back(controlPoint);
+                }
+            }
+            cin >> x >> y >> z;
+            Vector mesh_color = Vector(x, y, z);
+
+            double kd, ks, ka, kr, kt, nrugo;
+            cin >> kd >> ks >> ka >> kr >> kt >> nrugo;
+
+            double ior = 1.0;
+
+            Mesh mesh = Mesh(nTriangles, nVertex, Vertices, triplas, mesh_color, kd, ks, ka, kr, kt, nrugo, ior);
+            triplas.clear();
+            Vertices.clear();
+
+            Meshs.push_back(mesh);
+
         }else if(input == "transf"){
             string object, eixo;
             int index;
