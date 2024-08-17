@@ -281,6 +281,36 @@ int main(){
                 controlPoints.push_back(controlPointsRow);
                 controlPointsRow.clear();
             }
+
+            /*vector<vector<Point>> grid4x4 = { 
+                { Point(0.0, 0.0, 0.0), Point(1.0, 0.0, 0.0), Point(2.0, 0.0, 0.0), Point(3.0, 0.0, 0.0) },
+                { Point(0.0, 1.0, 0.0), Point(1.0, 1.0, 0.0), Point(2.0, 1.0, 0.0), Point(3.0, 1.0, 0.0) },
+                { Point(0.0, 2.0, 0.0), Point(1.0, 2.0, 0.0), Point(2.0, 2.0, 0.0), Point(3.0, 2.0, 0.0) },
+                { Point(0.0, 3.0, 0.0), Point(1.0, 3.0, 0.0), Point(2.0, 3.0, 0.0), Point(3.0, 3.0, 0.0) }
+            };*/
+                
+            /*
+            P(0,0) = (0, 0, 0)
+            P(0,1) = (1, 0, 0)
+            P(0,2) = (2, 0, 0)
+            P(0,3) = (3, 0, 0)
+
+            P(1,0) = (0, 1, 0)
+            P(1,1) = (1, 1, 0)
+            P(1,2) = (2, 1, 0)
+            P(1,3) = (3, 1, 0)
+
+            P(2,0) = (0, 2, 0)
+            P(2,1) = (1, 2, 0)
+            P(2,2) = (2, 2, 0)
+            P(2,3) = (3, 2, 0)
+            
+            P(3,0) = (0, 3, 0)
+            P(3,1) = (1, 3, 0)
+            P(3,2) = (2, 3, 0)
+            P(3,3) = (3, 3, 0)
+            */
+
             cin >> x >> y >> z;
             Vector bezier_color = Vector(x, y, z);
 
@@ -290,6 +320,7 @@ int main(){
             double ior = 1.0;
 
             Bezier bezier = Bezier(controlPoints, bezier_color, kd, ks, ka, kr, kt, nrugo, ior);
+            //Bezier bezier = Bezier(grid4x4, bezier_color, kd, ks, ka, kr, kt, nrugo, ior);
             //triplas.clear();
             //Vertices.clear();
 

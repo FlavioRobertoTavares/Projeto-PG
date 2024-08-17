@@ -6,6 +6,7 @@
 #include <cmath>  //pow()
 #include <tuple>
 #include <map>
+#include <limits> // std::numeric_limits
 #include "point.h"
 #include "vector.h"
 #include "ray.h"
@@ -35,26 +36,26 @@ public:
 
 
 class Bezier: public Object {
-    
-    public:
+public:
     vector<vector<Point>> controlPoints; //a Bezier surface is a grid of control points
     vector<Triangle> triangles; //triangle mesh
-    //map<tuple<double,double,double>, pair<double,double>> st;
+    //map<tuple<double,double,double>, pair<double,double>> st; 
+    //st: A map storing the texture coordinates (s, t) for each surface point.
 
     /*pair<double, double> getST(Point vertice) {
         return st[{vertice.x(), vertice.y(), vertice.z()}];
     }*/
   
     Bezier(vector<vector<Point>> controlPoints, Vector color, double kd, double ks, double ka, double kr, double kt, double nrugo, double ior)
-        : Object(color, kd, ks, ka, kr, kt, nrugo, ior) {
-            this->controlPoints = controlPoints;
+        : Object(color, kd, ks, ka, kr, kt, nrugo, ior), controlPoints(controlPoints) {
+            //this->controlPoints = controlPoints;
             //this->triangles = generateTriangles(controlPoints, 0.1);
             //this->triangles = generateTriangles(flattenControlPoints(controlPoints), 0.1);
-            this -> triangles = generateTriangles(0.1);
+            triangles = generateTriangles(0.1);
         }
         //~Bezier() = default;
 
-    double intersect(const ray& r) override { //intersect mesh
+    /*double intersect(const ray& r) override { //intersect mesh
         double dist;
         double menor_dist = INT_FAST16_MAX;
         for(Triangle tri : triangles){
@@ -63,9 +64,29 @@ class Bezier: public Object {
         }
         if(menor_dist == INT_FAST16_MAX){return 0;}
         return menor_dist;
+    }*/
+
+    double intersect(const ray& r) override {
+        double min_distance = numeric_limits<double>::max();
+        bool hit = false;
+
+        //for (const auto& tri : triangles) {
+        for (Triangle tri : triangles) {
+            double dist = tri.intersect(r);
+            if (dist > 0 && dist < min_distance) {
+                min_distance = dist;
+                hit = true;
+            }
+        }
+
+        if (!hit) {
+            return Not_intersect;
+        }
+
+        return min_distance;
     }
 
-    Vector returnNormal(const ray& r, double t) override {
+    /*Vector returnNormal(const ray& r, double t) override {
         for (Triangle tri : triangles) {
             double distance = tri.intersect(r);
             if (distance > 0 && distance == t) {
@@ -76,6 +97,24 @@ class Bezier: public Object {
 
                 normal.make_unit_vector();
                 // retorna a normal desse triangulo na posição de interseção
+                return normal;
+            }
+        }
+        return Vector(0, 0, 0); // Return zero vector if no intersection found
+    }*/
+
+    Vector returnNormal(const ray& r, double t) override {
+        //for (const auto& tri : triangles) {
+        for (Triangle tri : triangles) {
+            double distance = tri.intersect(r);
+            if (distance > 0 && distance == t) {
+                Vector normal = (tri.B - tri.A) % (tri.C - tri.A);
+
+                if (r.direction().dot(normal.x, normal.y, normal.z) > 0) {
+                    normal = normal * (-1);
+                }
+
+                normal.make_unit_vector();
                 return normal;
             }
         }
@@ -163,7 +202,7 @@ class Bezier: public Object {
     //Código redundante para facilitar meu entendimento
 
     // Compute Bernstein polynomial B_{i,n}(t)
-    double bernstein(int i, int n, double t) {
+    double bernstein(int i, int n, double t) { //(int n, int i, double t)
         // Calculate the binomial coefficient (n choose i)
         double coef = 1.0;
         for (int j = 0; j < i; ++j){
@@ -177,11 +216,13 @@ class Bezier: public Object {
     //Point bicubicBezier(const vector<vector<Point>>& controlPoints, double u, double v) {
     Point surface_point(double u, double v) { //double s,t
         int n = controlPoints.size(); // n=3 Degree of the polynomial (cubic)
+        int m;
         Point result = Point (0.0, 0.0, 0.0);
-        for (int i = 0; i <= n; ++i) {
-            for (int j = 0; j <= n; ++j) {
-                double Bu = bernstein(i, n, u);
-                double Bv = bernstein(j, n, v);
+        for (int i = 0; i < n; ++i) {
+            m = controlPoints[i].size();
+            for (int j = 0; j < m; ++j) {
+                double Bu = bernstein(i, n - 1, u);
+                double Bv = bernstein(j, m - 1 , v);
                 result.x += Bu * Bv * controlPoints[i][j].x;
                 result.y += Bu * Bv * controlPoints[i][j].y;
                 result.z += Bu * Bv * controlPoints[i][j].z;
@@ -255,6 +296,21 @@ class Bezier: public Object {
                 }
             }
         }
+
+        /*for (int i = 0; i < listTriangles.size(); i++){
+            int idxA = listTriangles[i][0];
+            int idxB = listTriangles[i][1];
+            int idxC = listTriangles[i][2];
+
+            point3 A = bezier_points[idxA];
+            point3 B = bezier_points[idxB];
+            point3 C = bezier_points[idxC];
+
+            triangles.push_back(Triangle(A, B, C));
+        }*/
+        cout << "Generated " << listTriangles.size() << " triangles from Bezier surface." << endl;
+        triangles = listTriangles;
+        cout << "Generated " << triangles.size() << " triangles from Bezier surface." << endl;
         return listTriangles;
     }
 };
