@@ -3,6 +3,9 @@
 
 #include <iostream>
 #include <vector>
+#include <cmath>  //pow()
+#include <tuple>
+#include <map>
 #include "point.h"
 #include "vector.h"
 #include "ray.h"
@@ -46,16 +49,37 @@ class Bezier: public Object {
         : Object(color, kd, ks, ka, kr, kt, nrugo, ior) {
             this->controlPoints = controlPoints;
             //this->triangles = generateTriangles(controlPoints, 0.1);
-            this->triangles = generateTriangles(flattenControlPoints(controlPoints), 0.1);
+            //this->triangles = generateTriangles(flattenControlPoints(controlPoints), 0.1);
+            this -> triangles = generateTriangles(0.1);
         }
         //~Bezier() = default;
 
-    double intersect(const ray &r) override {
-        return 0;
+    double intersect(const ray& r) override { //intersect mesh
+        double dist;
+        double menor_dist = INT_FAST16_MAX;
+        for(Triangle tri : triangles){
+            dist = tri.intersect(r);
+            if(dist < menor_dist && dist > 0){menor_dist = dist;}
+        }
+        if(menor_dist == INT_FAST16_MAX){return 0;}
+        return menor_dist;
     }
 
     Vector returnNormal(const ray& r, double t) override {
-        return Vector(0, 0, 0);
+        for (Triangle tri : triangles) {
+            double distance = tri.intersect(r);
+            if (distance > 0 && distance == t) {
+                Vector normal = (tri.B - tri.A) % (tri.C - tri.A);
+                    
+                // inverte a direção da normal se ela for igual a direção do raio
+                if(r.direction().dot(normal.x, normal.y, normal.z) > 0){normal = normal*(-1);}
+
+                normal.make_unit_vector();
+                // retorna a normal desse triangulo na posição de interseção
+                return normal;
+            }
+        }
+        return Vector(0, 0, 0); // Return zero vector if no intersection found
     }
 
     //Código redundante para facilitar meu entendimento
@@ -140,10 +164,12 @@ class Bezier: public Object {
 
     // Compute Bernstein polynomial B_{i,n}(t)
     double bernstein(int i, int n, double t) {
+        // Calculate the binomial coefficient (n choose i)
         double coef = 1.0;
         for (int j = 0; j < i; ++j){
             coef *= (n - j) / static_cast<double>(j + 1);
         }
+         // Calculate the Bernstein polynomial B_{i,n}(t)
         return coef * pow(t, i) * pow(1 - t, n - i);
     }
     //com parâmetros s e t -> 1 ponto na superfície
@@ -185,9 +211,9 @@ class Bezier: public Object {
         for(double s=0; s<=1; s+=tolerance){
             for(double t=0; t<=1; t+=tolerance){
                 bezier_points.push_back(surface_point(s,t));
-                Point p = surface_point(s, t);
+                /*Point p = surface_point(s, t);
                 bezier_points.push_back(p);
-                cout << "Point: (" << p.x << ", " << p.y << ", " << p.z << ")\n"; // Debugging print
+                cout << "Point: (" << p.x << ", " << p.y << ", " << p.z << ")\n"; // Debugging print*/
             }
         }
         return bezier_points;
@@ -202,10 +228,12 @@ class Bezier: public Object {
     }
 
     // Function to generate triangles from Bézier surface points
-    vector<Triangle> generateTriangles(const vector<Point>& bezier_points, double tolerance) {
+    //vector<Triangle> generateTriangles(const vector<Point>& bezier_points, double tolerance) {
+    vector<Triangle> generateTriangles(double tolerance) {
         vector<Triangle> listTriangles;
         int n = static_cast<int>(1 / tolerance); // Number of divisions along one axis
         int numPointsPerRow = n + 1; // Number of points per row in the grid
+        vector<Point> bezier_points = getPointsFromSurface(tolerance);
         for (int i = 0; i < n; ++i) {
             for (int j = 0; j < n; ++j) {
                 // Calculate indices for the current grid cell
@@ -307,6 +335,5 @@ class Bezier: public Object {
 //cada triângulo é formado por 3 indices, cada indice é um ponto da superficie
 
 #endif
-
 
 

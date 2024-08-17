@@ -349,6 +349,7 @@ int main(){
     for(Sphere& sphere : Spheres){Objects.push_back(&sphere);}
     for(Plane& plane : Planes){Objects.push_back(&plane);}
     for(Mesh& mesh : Meshs){Objects.push_back(&mesh);}
+    for(Bezier& bezier : Beziers){Objects.push_back(&bezier);}
 
     cout << "P3\n" << length << " " << height << "\n255\n";
     
