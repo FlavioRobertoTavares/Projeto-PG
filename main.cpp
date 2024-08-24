@@ -3,6 +3,7 @@
 #include <vector>
 #include <utility>
 #include <algorithm>
+#include <cstdlib>
 #include "vector.h"
 #include "point.h"
 #include "cam.h"
@@ -19,15 +20,6 @@ using namespace std;
 
 Vector Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, const vector<Light> &Lights, int recursao);
 Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights, vector<Object*> Recursao, int recursao);
-
-//Organiza a lista do menor pro maior, mas se for 0, ele coloca no final da lista
-bool return_min_dist(const pair<double, Object*> &dist1, const pair<double, Object*> &dist2){
-    if(dist1.first == 0){return false;}
-    if(dist2.first == 0){return true;}
-    return dist1.first < dist2.first;
-
-}
-
 
 double dt (Point a, Point b) {
     return sqrt(pow(a.x - b.x, 2) + pow(a.y - b.y, 2) + pow(a.z - b.z, 2));
@@ -78,28 +70,60 @@ Vector Phong(CAM cam, Object* Objectt, ray raio, double t, vector<Light> Lights,
 
     I = ambient_light*ka*Od;    
 
+    Colisao = raio.at(t);
+
+    V = cam.origin - Colisao;
+    V.make_unit_vector();
 
     for(Light& light: Lights){
-        IL = light.intensity/255;
-        Colisao = raio.at(t);
+        if(!light.extense){
+            IL = light.intensity/255;
 
-        L = light.origin - Colisao;
-        L.make_unit_vector();
-        
-        R = (normal*2)*(L.dot(normal.x, normal.y, normal.z)) - L;
-        R.make_unit_vector();
+            L = light.origin - Colisao;
+            L.make_unit_vector();
+            
+            R = (normal*2)*(L.dot(normal.x, normal.y, normal.z)) - L;
+            R.make_unit_vector();
 
-        V = cam.origin - Colisao;
-        V.make_unit_vector();
+            if(light.no_shadow(Colisao, Recursao, L)){
+                difuse = normal.dot(L.x, L.y, L.z);
+                if (difuse > 0) {
+                    I = I + IL*Od*kd*difuse;
+                }
 
-        difuse = normal.dot(L.x, L.y, L.z);
-        if (difuse > 0) {
-            I = I + IL*Od*kd*difuse;
-        }
+                espec = R.dot(V.x, V.y, V.z);
+                if (espec > 0) {
+                    I = I + IL*ks*pow(espec, nrugo);
+                }
+            }
 
-        espec = R.dot(V.x, V.y, V.z);
-        if (espec > 0) {
-            I = I + IL*ks*pow(espec, nrugo);
+        }else{
+            IL = (light.intensity / 255) / light.numPontos;
+
+            for(int useless = 0; useless < light.numPontos; useless++){
+                double u = rand() / (double)RAND_MAX; // valor aleatório entre 0 e 1
+                double v = rand() / (double)RAND_MAX; // valor aleatório entre 0 e 1
+                Point nOrigin = light.origin + light.largura*u + light.altura*v;
+
+                L = nOrigin - Colisao;
+                L.make_unit_vector();
+                
+                R = (normal*2)*(L.dot(normal.x, normal.y, normal.z)) - L;
+                R.make_unit_vector();
+
+                if(light.no_shadow(Colisao, Recursao, L)){
+                    difuse = normal.dot(L.x, L.y, L.z);
+                    if (difuse > 0) {
+                        I = I + IL*Od*kd*difuse;
+                    }
+
+                    espec = R.dot(V.x, V.y, V.z);
+                    if (espec > 0) {
+                        I = I + IL*ks*pow(espec, nrugo);
+                    }
+                }
+
+            }
         }
 
         if(recursao < 3 && dt(raio.origin(), raio.at(t)) > Discard){
@@ -152,8 +176,8 @@ Vector Render(const CAM &cam, const vector<Object*> &Objects, const ray &raio, c
 int main(){
 
     double x, y, z, foo, height, length, distance;
-    bool have_texture;
-    string name_texture;
+    bool have_texture, is_extense;
+    string name_texture, extense;
     vector<Sphere> Spheres;
     vector<Plane> Planes;
     vector<Mesh> Meshs;
@@ -161,6 +185,7 @@ int main(){
 
     int nTriangles;
     int nVertex;
+    int numPontos;
     vector<Point> Vertices;
     Vector color;
     Vector ambient_light;
@@ -203,7 +228,27 @@ int main(){
             cin >> x >> y >> z;
             Vector light_intensity = Vector (x, y, z);
 
-            Light light (light_origin, light_intensity);
+            cin >> extense;
+
+            Vector largura = Vector(0, 0, 0);
+            Vector altura = Vector(0, 0, 0);
+            numPontos = 0;
+            is_extense = false;
+
+            if(extense == "yes"){
+                cin >> x >> y >> z;
+                largura = Vector(x, y, z);
+
+                cin >> x >> y >> z;
+                altura = Vector(x, y, z);
+
+                cin >> numPontos;
+
+                is_extense = true;
+
+            }
+
+            Light light (light_origin, light_intensity, largura, altura, numPontos, is_extense);
             Lights.push_back(light);
 
         } else if(input == "sphere"){

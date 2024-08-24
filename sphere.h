@@ -61,12 +61,11 @@ public:
         i = static_cast<int>(u * texture->width);
         j = static_cast<int>(v * texture->height);
 
-        i = std::max(0, std::min(i, texture->width - 1));
-        j = std::max(0, std::min(j, texture->height - 1));
+        i = max(0, min(i, texture->width - 1));
+        j = max(0, min(j, texture->height - 1)); //std::ok
         
         index = (j * texture->width + i) * 3;
         
-        //precisa normalizar aqui? Porque eu normalizo no phong já
         erre = texture->image[index] / 255.0;
         g = texture->image[index + 1] / 255.0;
         b = texture->image[index + 2] / 255.0;
